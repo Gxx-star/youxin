@@ -1,32 +1,176 @@
+# 版本号配置
 [versions]
-agp = "8.9.2"
-kotlin = "2.0.21"
-coreKtx = "1.10.1"
+# Android Gradle Plugin 版本
+agp = "8.5.2"
+# CameraX 相关版本
+cameraCore = "1.4.2"
+cameraCamera2 = "1.4.2"
+cameraLifecycle = "1.4.2"
+# Coil 图片加载库版本
+coilCompose = "2.4.0"
+coilGif = "2.4.0"
+# 其他工具库版本
+commonsIo = "2.15.0"
+asm = "9.6"
+# Compose 相关版本
+composeBom = "2024.04.01"
+composeCompiler = "1.5.8"
+# Gradle 版本
+gradle = "8.11.0"
+# 测试库版本
+junitJunit = "4.13.2"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
+# AndroidX 基础库版本
+appcompat = "1.6.1"
+core-ktx = "1.12.0"
+activity = "1.8.0"
+constraintlayout = "2.1.4"
+annotation = "1.8.2"
+recyclerview = "1.3.2"
+swiprefreshlayout = "1.1.0"
+runner = "1.5.2"
+# Kotlin 相关版本
+kotlin = "2.0.0"
+kotlinpoet = "1.14.2"
+symbolProcessingGradlePlugin = "2.0.0-1.0.21"
+# Material 设计库版本
+material = "1.10.0"
+# 生命周期相关版本
+lifecycleLivedataKtx = "2.6.1"
+lifecycleViewmodelKtx = "2.8.3"
 lifecycleRuntimeKtx = "2.6.1"
-activityCompose = "1.8.0"
-composeBom = "2024.09.00"
+# Media3 媒体库版本
+media3Exoplayer = "1.7.1"
+media3Ui = "1.7.1"
+# 导航组件版本
+navigationFragmentKtx = "2.9.1"
+navigationUiKtx = "2.9.1"
+navigationCompose = "2.7.5"
+# 分页库版本
+paging = "3.2.1"
+# Room 数据库版本
+roomRuntime = "2.5.1"
+# 图片加载与显示库版本
+glide = "4.14.2"
+circleimageview = "3.1.0"
+# 网络请求库版本
+retrofit = "2.9.0"
+moshi = "1.15.0"
+okhttp = "4.11.0"
+# 工作管理器版本
+workRuntime = "2.10.2"
 
+
+# 库依赖配置
 [libraries]
-androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
-androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
-androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+# CameraX 相关库
+androidx-camera-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCore" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraLifecycle" }
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
+androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCore" }
+
+# Media3 媒体库
+androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "media3Exoplayer" }
+androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3Ui" }
+androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3Exoplayer" }
+
+# 导航组件
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtx" }
+androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
+
+# Activity 与 Compose 集成
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
+
+# Compose 相关库
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+androidx-foundation = { module = "androidx.compose.foundation:foundation" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose" }
+androidx-material = { module = "androidx.compose.material3:material3" }
+androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
+androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+androidx-ui = { module = "androidx.compose.ui:ui" }
+androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
-androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
+# Room 数据库
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+
+# 工作管理器
+androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntime" }
+
+# ASM 相关库
+asm-tree-x-x = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+
+# Coil 图片加载
+coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coilGif" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+
+# 其他工具库
+commons-io = { module = "commons-io:commons-io", version.ref = "commonsIo" }
+gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
+kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
+swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiprefreshlayout" }
+
+# 图片加载与显示
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
+circleimageview = { group = "de.hdodenhof", name = "circleimageview", version.ref = "circleimageview" }
+
+# 网络请求
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+moshi = { group = "com.squareup.moshi", name = "moshi", version.ref = "moshi" }
+moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshi" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+
+# Kotlin 相关
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+symbol-processing-gradle-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "symbolProcessingGradlePlugin" }
+
+# AndroidX 基础库
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
+recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
+
+# 测试库
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+junit-v412 = { module = "junit:junit", version.ref = "junitJunit" }
+
+# Material 设计
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
+
+# 生命周期相关
+androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+
+# 分页库
+androidx-paging-runtime-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
+androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "paging" }
+
+
+# 插件配置
 [plugins]
+ksp = { id = "com.google.devtools.ksp", version.ref = "symbolProcessingGradlePlugin" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
+compose-compiler = { id = "androidx.compose.compose-compiler", version.ref = "composeCompiler" }
