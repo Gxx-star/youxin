@@ -11,14 +11,15 @@ plugins {
 android {
     namespace = "com.example.youxin"
     compileSdk = 35
-
+    buildFeatures {
+        compose = true
+    }
     defaultConfig {
         applicationId = "com.example.youxin"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -38,22 +39,28 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.11"
+    }
     buildFeatures {
         compose = true
     }
 }
 dependencies {
-    implementation ("com.google.dagger:hilt-android:2.48")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.constraintlayout)
+    implementation ("com.google.dagger:hilt-android:2.48")
     ksp("com.google.dagger:hilt-android-compiler:2.48")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation("androidx.room:room-ktx:2.5.1")
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)

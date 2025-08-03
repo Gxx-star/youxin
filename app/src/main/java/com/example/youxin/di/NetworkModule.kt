@@ -1,5 +1,6 @@
 package com.example.youxin.di
 
+import com.example.youxin.network.service.UserService
 import com.example.youxin.utils.constant.NetworkConstants
 import dagger.Module
 import dagger.Provides
@@ -26,6 +27,7 @@ object NetworkModule {
             .readTimeout(NetworkConstants.READ_TIMEOUT, TimeUnit.SECONDS)
             .build()
     }
+
     // 提供Retrofit实例用于依赖注入
     @Provides
     @Singleton
@@ -35,5 +37,12 @@ object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    // 提供UserService实例用于依赖注入
+    @Provides
+    @Singleton
+    fun provideUserService(retrofit: Retrofit): UserService {
+        return retrofit.create(UserService::class.java)
     }
 }

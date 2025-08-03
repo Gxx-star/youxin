@@ -13,7 +13,7 @@ coilGif = "2.4.0"
 commonsIo = "2.15.0"
 asm = "9.6"
 # Compose 相关版本
-composeBom = "2024.04.01"
+composeBom = "2025.01.00"
 composeCompiler = "1.5.8"
 # Gradle 版本
 gradle = "8.11.0"
@@ -37,10 +37,12 @@ kotlinpoet = "1.14.2"
 symbolProcessingGradlePlugin = "2.0.0-1.0.21"
 # Material 设计库版本
 material = "1.10.0"
+material3 = "1.3.0"
 # 生命周期相关版本
 lifecycleLivedataKtx = "2.6.1"
 lifecycleViewmodelKtx = "2.8.3"
 lifecycleRuntimeKtx = "2.6.1"
+lifecycleRuntimeCompose = "2.6.1"
 # Media3 媒体库版本
 media3Exoplayer = "1.7.1"
 media3Ui = "1.7.1"
@@ -88,7 +90,6 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-foundation = { module = "androidx.compose.foundation:foundation" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose" }
-androidx-material = { module = "androidx.compose.material3:material3" }
 androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-ui = { module = "androidx.compose.ui:ui" }
@@ -98,7 +99,7 @@ ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3",version.ref = "material3" }
 
 # Room 数据库
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
@@ -161,6 +162,7 @@ androidx-annotation = { group = "androidx.annotation", name = "annotation", vers
 androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 
 # 分页库
 androidx-paging-runtime-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }

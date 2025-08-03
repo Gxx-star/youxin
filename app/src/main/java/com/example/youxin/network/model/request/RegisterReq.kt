@@ -1,8 +1,8 @@
-package com.example.youxin.network.model
+package com.example.youxin.network.model.request
 
 import com.google.gson.annotations.SerializedName
 
-class RegisterReq(
+data class RegisterReq(
     @SerializedName("phone")
     val phone: String,
     @SerializedName("password")

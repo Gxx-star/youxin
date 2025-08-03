@@ -1,11 +1,9 @@
 package com.example.youxin.di
 
 import android.app.Application
-import androidx.media3.database.StandaloneDatabaseProvider.DATABASE_NAME
 import androidx.room.Room
 import com.example.youxin.data.db.AppDatabase
 import com.example.youxin.data.db.dao.CurrentUserDao
-import com.example.youxin.utils.constant.DbConstants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,6 +29,6 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideUserDao(appDatabase: AppDatabase): CurrentUserDao {
-        return appDatabase.userDao()
+        return appDatabase.currentUserDao()
     }
 }

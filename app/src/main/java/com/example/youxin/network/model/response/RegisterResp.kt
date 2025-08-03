@@ -1,4 +1,4 @@
-package com.example.youxin.network.model
+package com.example.youxin.network.model.response
 
 import com.google.gson.annotations.SerializedName
 

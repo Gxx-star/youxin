@@ -14,5 +14,5 @@ import com.example.youxin.data.db.entity.CurrentUserEntity
     entities = [CurrentUserEntity::class]
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun userDao(): CurrentUserDao
+    abstract fun currentUserDao(): CurrentUserDao
 }
