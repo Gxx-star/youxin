@@ -14,7 +14,6 @@ object NavConstants {
         const val QUICK_LOGIN_SCREEN = "quick_login_screen"
         const val FULL_LOGIN_SCREEN = "full_login_screen"
         const val REGISTER_SCREEN = "register_screen"
-        const val FORGET_PASSWORD_SCREEN = "forget_password_screen"
     }
 
     object MainRoutes {

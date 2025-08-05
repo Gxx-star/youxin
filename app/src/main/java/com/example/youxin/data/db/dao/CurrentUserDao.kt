@@ -24,4 +24,7 @@ interface CurrentUserDao {
 
     @Query("UPDATE current_user SET token = :newToken")
     suspend fun updateToken(newToken: String)
+
+    @Query("UPDATE current_user SET isLogin = :isLogin")
+    suspend fun updateIsLogin(isLogin: Boolean)
 }

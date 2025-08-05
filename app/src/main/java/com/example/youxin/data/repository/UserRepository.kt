@@ -1,9 +1,11 @@
 package com.example.youxin.data.repository
 
+import android.util.Log
 import com.example.youxin.data.db.dao.CurrentUserDao
 import com.example.youxin.data.db.entity.CurrentUserEntity
 import com.example.youxin.network.api.UserApi
 import com.example.youxin.utils.KeyStoreUtils
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
@@ -24,12 +26,12 @@ class UserRepository @Inject constructor(
         val registerResp = userApi.register(phone, password, nickname, sex, avatar)
         if (registerResp != null) {
             return CurrentUserEntity(
-                id = null,
+                id = 1,
                 phone = phone,
                 nickName = nickname,
                 token = registerResp.token,
                 avatar = avatar,
-                isLogin = true,
+                isLogin = false
             ).also {
                 currentUserDao.saveCurrentUser(it)
             }
@@ -41,26 +43,21 @@ class UserRepository @Inject constructor(
     // 登录
     suspend fun login(
         phone: String,
-        password: String,
-        isRememberPassword: Boolean
+        password: String
     ): CurrentUserEntity? {
         val loginResp = userApi.login(
             phone = phone,
             password = password
         )
         if (loginResp != null) {
-            val encryptedPassword = if (isRememberPassword) {
-                KeyStoreUtils.encrypt(password)
-            } else {
-                null
-            }
             val user = userApi.getUserInfo(loginResp.token)?.info
             return CurrentUserEntity(
-                id = null,
+                id = 1,
                 phone = phone,
                 nickName = user?.nickname,
                 token = loginResp.token,
                 avatar = user?.avatar,
+                isLogin = true
             ).also {
                 currentUserDao.saveCurrentUser(it)
             }
@@ -69,13 +66,14 @@ class UserRepository @Inject constructor(
         }
     }
 
-    // 获取当前用户
-    suspend fun getCurrentUser(): CurrentUserEntity? {
-        return currentUserDao.getCurrentUser()
-    }
-
     // 退出登录
     suspend fun logout() {
+        currentUserDao.updateIsLogin(false)
+    }
+    suspend fun switchUser(){
         currentUserDao.deleteCurrentUser()
     }
+
+    // 观察当前用户
+    fun observeCurrentUser(): Flow<CurrentUserEntity?> = currentUserDao.observeCurrentUser()
 }

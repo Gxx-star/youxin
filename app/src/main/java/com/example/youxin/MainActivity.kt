@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import com.example.youxin.ui.component.Loading
 import com.example.youxin.ui.navigation.RootNavgation
 import com.example.youxin.ui.screen.login.RegisterScreen
 import com.example.youxin.ui.theme.YouxinTheme

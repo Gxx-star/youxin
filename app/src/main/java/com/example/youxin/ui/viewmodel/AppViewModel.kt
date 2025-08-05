@@ -1,5 +1,6 @@
 package com.example.youxin.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.youxin.data.db.entity.CurrentUserEntity
@@ -23,14 +24,12 @@ class AppViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _currentUser.value = userRepository.getCurrentUser()
+            userRepository.observeCurrentUser().collect {
+                _currentUser.value = it  // 观察并同步数据库变化
+            }
         }
     }
-
-    fun logout() {
-        viewModelScope.launch {
-            userRepository.logout()
-            _currentUser.value = null
-        }
+    suspend fun logout(){
+        userRepository.logout()
     }
 }

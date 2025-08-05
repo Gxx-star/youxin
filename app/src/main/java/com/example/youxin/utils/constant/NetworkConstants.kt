@@ -4,7 +4,7 @@ package com.example.youxin.utils.constant
  * 配置网络常量
  */
 object NetworkConstants {
-    const val BASE_URL = "http://114.215.194.88/9080/"
+    const val BASE_URL = "http://114.215.194.88:9080/"
     const val CACHE_SIZE = (10 * 1024 * 1024).toLong() // 缓存大小 10M
     const val CONNECT_TIMEOUT = 15L // 连接超时时间 15s
     const val READ_TIMEOUT = 15L // 读取超时时间 15s
