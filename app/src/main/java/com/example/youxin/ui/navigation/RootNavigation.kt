@@ -6,7 +6,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.example.youxin.ui.screen.home.YouxinScreen
+import com.example.youxin.ui.component.MainContainer
+import com.example.youxin.ui.screen.home.ChatScreen
+import com.example.youxin.ui.screen.home.ContactScreen
+import com.example.youxin.ui.screen.home.DiscoverScreen
+import com.example.youxin.ui.screen.home.MeScreen
 import com.example.youxin.ui.screen.login.FullLoginScreen
 import com.example.youxin.ui.screen.login.LoginScreen
 import com.example.youxin.ui.screen.login.QuickLoginScreen
@@ -17,7 +21,7 @@ import com.example.youxin.utils.constant.NavConstants
 import com.example.youxin.utils.constant.NavConstants.RootRoutes
 
 @Composable
-fun RootNavgation() {
+fun RootNavigation() {
     // 管理自动注入通过构造函数给每一个页面
     val navController = rememberNavController()
     val appViewModel: AppViewModel = hiltViewModel()
@@ -36,8 +40,8 @@ fun RootNavgation() {
             composable(NavConstants.LoginRoutes.QUICK_LOGIN_SCREEN) {
                 QuickLoginScreen(navController, loginViewModel)
             }
-            composable(NavConstants.LoginRoutes.FULL_LOGIN_SCREEN){
-                FullLoginScreen(navController,loginViewModel)
+            composable(NavConstants.LoginRoutes.FULL_LOGIN_SCREEN) {
+                FullLoginScreen(navController, loginViewModel)
             }
             composable(NavConstants.LoginRoutes.REGISTER_SCREEN) {
                 RegisterScreen(navController, appViewModel)
@@ -48,16 +52,16 @@ fun RootNavgation() {
             startDestination = NavConstants.MainRoutes.YOUXIN_SCREEN
         ) {
             composable(NavConstants.MainRoutes.YOUXIN_SCREEN) {
-                YouxinScreen(navController, appViewModel)
+                MainContainer(navController) { ChatScreen(navController, appViewModel) }
             }
             composable(NavConstants.MainRoutes.CONTACT_SCREEN) {
-
+                MainContainer(navController) { ContactScreen() }
             }
             composable(NavConstants.MainRoutes.DISCOVER_SCREEN) {
-
+                MainContainer(navController) { DiscoverScreen() }
             }
             composable(NavConstants.MainRoutes.ME_SCREEN) {
-
+                MainContainer(navController) { MeScreen() }
             }
         }
     }

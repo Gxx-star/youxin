@@ -1,8 +1,5 @@
 package com.example.youxin.ui.screen.home
 
-import android.R.attr.text
-import android.util.Log
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavController
@@ -12,7 +9,7 @@ import com.example.youxin.utils.constant.NavConstants
 import kotlinx.coroutines.launch
 
 @Composable
-fun YouxinScreen(
+fun ChatScreen(
     navController: NavController,
     appViewModel: AppViewModel
 ) {
