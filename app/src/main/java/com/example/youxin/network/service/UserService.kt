@@ -3,6 +3,7 @@ package com.example.youxin.network.service
 import com.example.youxin.network.model.ApiResponse
 import com.example.youxin.network.model.request.LoginReq
 import com.example.youxin.network.model.request.RegisterReq
+import com.example.youxin.network.model.request.UpdateUserInfoReq
 import com.example.youxin.network.model.response.LoginResp
 import com.example.youxin.network.model.response.RegisterResp
 import com.example.youxin.network.model.response.UserinfoResp
@@ -11,6 +12,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 
 /**
@@ -26,5 +28,11 @@ interface UserService {
     @GET(NetworkConstants.User.GET_USER_INFO)
     suspend fun getUserInfo(
         @Header("Authorization") token: String
+    ): ApiResponse<UserinfoResp>
+
+    @PATCH(NetworkConstants.User.UPDATE_USER_INFO)
+    suspend fun updateUserInfo(
+        @Header("Authorization") token: String,
+        @Body request: UpdateUserInfoReq
     ): ApiResponse<UserinfoResp>
 }

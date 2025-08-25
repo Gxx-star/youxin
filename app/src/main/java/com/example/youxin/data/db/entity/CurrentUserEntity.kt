@@ -12,5 +12,6 @@ data class CurrentUserEntity(
     val nickName: String?, // 昵称
     val token: String, // 登录令牌
     val avatar: String?, // 头像uri
+    val sex: Byte? = 0,
     val isLogin: Boolean = true, // 是否处于登录状态
 )

@@ -1,5 +1,8 @@
 package com.example.youxin.ui.component
 
+import android.R.attr.enabled
+import android.R.attr.onClick
+import android.R.attr.text
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size

@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     id("dagger.hilt.android.plugin")
+    id("org.jetbrains.kotlin.plugin.parcelize")
 }
 
 android {
@@ -58,6 +59,11 @@ dependencies {
     ksp("com.google.dagger:hilt-android-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     implementation("androidx.room:room-ktx:2.5.1")
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
+    implementation("com.belerweb:pinyin4j:2.5.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.retrofit)

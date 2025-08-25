@@ -1,5 +1,6 @@
 package com.example.youxin.di
 
+import com.example.youxin.network.service.SocialService
 import com.example.youxin.network.service.UserService
 import com.example.youxin.utils.constant.NetworkConstants
 import dagger.Module
@@ -39,10 +40,16 @@ object NetworkModule {
             .build()
     }
 
-    // 提供UserService实例用于依赖注入
+    // 提供Service实例用于依赖注入
     @Provides
     @Singleton
     fun provideUserService(retrofit: Retrofit): UserService {
         return retrofit.create(UserService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSocialService(retrofit: Retrofit): SocialService {
+        return retrofit.create(SocialService::class.java)
     }
 }

@@ -9,5 +9,5 @@ data class Info(
     val id: String,
     val nickname: String,
     val phone: String,
-    val sex: Int
+    val sex: Byte
 )

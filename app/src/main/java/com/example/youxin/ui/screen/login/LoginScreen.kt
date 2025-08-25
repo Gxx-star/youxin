@@ -78,6 +78,9 @@ fun LoginScreen(
             currentUser?.isLogin == true -> {
                 Log.d("myTag", "导航进入主页面")
                 navController.navigate(RootRoutes.MAIN_GRAPH) {
+                    popUpTo(RootRoutes.LOGIN_GRAPH){
+                        inclusive = true // 导航进主页面之后清空栈
+                    }
                     launchSingleTop = true
                 }
             }

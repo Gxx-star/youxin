@@ -14,6 +14,14 @@ object NetworkConstants {
         const val REGISTER = "v1/user/register"
         const val GET_USER_INFO = "v1/user/userinfo"
         const val UPDATE_USER_INFO = "v1/user/update"
-        const val QUERY_USER = "v1/user/findUser"
+        const val FIND_USER = "v1/user/findUser"
+    }
+    // 社交模块的uri
+    object Social {
+        const val APPLY_FRIEND = "v1/social/firend/applyFriend"
+        const val HANDLE_APPLY = "v1/social/firend/handleApply"
+        const val DELETE_FRIEND = "v1/social/firend/deleteFriend"
+        const val GET_FRIEND_LIST = "v1/social/firend/getFriendList"
+        const val GET_APPLY_LIST = "v1/social/firend/getHandleFriendApplyList"
     }
 }

@@ -3,6 +3,7 @@ package com.example.youxin.network.api
 import android.util.Log
 import com.example.youxin.network.model.request.LoginReq
 import com.example.youxin.network.model.request.RegisterReq
+import com.example.youxin.network.model.request.UpdateUserInfoReq
 import com.example.youxin.network.model.response.LoginResp
 import com.example.youxin.network.model.response.RegisterResp
 import com.example.youxin.network.model.response.UserinfoResp
@@ -38,12 +39,24 @@ class UserApi @Inject constructor(
         }
         return response.data
     }
+
     // 获取用户信息
-    suspend fun getUserInfo(token:String): UserinfoResp? {
+    suspend fun getUserInfo(token: String): UserinfoResp? {
         val response = userService.getUserInfo(token)
         if (response.msg != "success") {
             throw Exception("获取用户信息失败: ${response.msg}")
         }
         return response.data
+    }
+
+    // 更新个人信息
+    suspend fun updateUserInfo(token: String, nickName: String, sex: Byte, avatar: String):Boolean {
+        val response =
+            userService.updateUserInfo(token, UpdateUserInfoReq(avatar, nickName, sex.toInt()))
+        if (response.msg != "success") {
+            throw Exception("更新用户信息失败: ${response.msg}")
+            return false
+        }
+        return true
     }
 }

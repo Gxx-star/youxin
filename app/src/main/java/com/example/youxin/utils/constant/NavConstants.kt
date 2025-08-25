@@ -17,9 +17,35 @@ object NavConstants {
     }
 
     object MainRoutes {
+        const val MAIN_CONTAINER = "main_container"
         const val YOUXIN_SCREEN = "youxin_screen"
         const val CONTACT_SCREEN = "contact_screen"
         const val DISCOVER_SCREEN = "discover_screen"
         const val ME_SCREEN = "me_screen"
+
+        // 从[友信]打开的子页面
+        object YouxinRoutes {
+            const val CHAT_SCREEN = "chat_screen"
+        }
+
+        // 从[通讯录]打开的子页面
+        object ContactRoutes {
+            const val NEW_FRIEND_SCREEN = "new_friend_screen"
+            const val ADD_FRIEND_SCREEN = "add_friend_screen"
+            const val VERIFIED_FRIEND = "verified_friend"
+        }
+
+        // 从[发现]打开的子页面
+        object DiscoverRoutes {
+
+        }
+
+        // 从[我]打开的子页面
+        object MeRoutes {
+            const val MY_INFORMATION_SCREEN = "my_information_screen"
+            const val SETTING_SCREEN = "setting_screen"
+            const val UPDATE_NICKNAME = "update_nickname"
+            const val UPDATE_SEX = "update_sex"
+        }
     }
 }

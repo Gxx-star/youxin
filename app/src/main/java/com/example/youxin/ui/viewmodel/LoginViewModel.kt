@@ -22,12 +22,12 @@ class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(LoginState())
-    val state: StateFlow<LoginState> = _state
+    val state: StateFlow<LoginState> = _state.asStateFlow()
     private val _currentUser = MutableStateFlow<CurrentUserEntity?>(null)
     val currentUser: StateFlow<CurrentUserEntity?> = _currentUser.asStateFlow()
 
     // 标记currentUser是否正在加载
-    private val _isLoading = MutableStateFlow(true)
+    private var _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     init {
@@ -73,10 +73,8 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun logout() {
-        viewModelScope.launch {
-            userRepository.logout()
-        }
+    suspend fun logout() {
+        userRepository.logout()
     }
 
     suspend fun switchUser() {
@@ -85,7 +83,7 @@ class LoginViewModel @Inject constructor(
 
     // 重置状态
     fun resetState() {
-        _state.value = LoginState() // 重置页面状态（包括 isSuccess = false）
+        _state.value = LoginState() // 重置页面状态（包括 isSuccess = false)
     }
 }
 
