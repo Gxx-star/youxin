@@ -11,11 +11,12 @@ import com.example.youxin.data.db.entity.FriendStatusEntity
 import com.example.youxin.di.DataStoreManager
 import com.example.youxin.network.api.SocialApi
 import com.example.youxin.network.model.response.Friend
-import com.example.youxin.network.model.response.GetApplyListResp
 import com.example.youxin.network.model.response.GetFriendListResp
-import com.example.youxin.utils.ContactGroupUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -28,6 +29,7 @@ class ContactRepository @Inject constructor(
     private val dataStoreManager: DataStoreManager,
     private val database: AppDatabase
 ) {
+
     private var cachedUserId: String? = null
     private suspend fun getUserId(): String {
         if (cachedUserId == null) {
@@ -36,11 +38,21 @@ class ContactRepository @Inject constructor(
         }
         return cachedUserId!!
     }
+
+    // 同步数据
+    suspend fun syncWithServer() {
+        syncApplies()
+        syncContacts()
+    }
+    fun getContactStatusFlow(id: String): Flow<FriendStatusEntity> {
+        return contactDao.observeContactStatusById(id)
+    }
     // 申请添加朋友
     suspend fun addApplyFriend(targetId: String, greetMsg: String): Boolean {
         val result = socialApi.applyFriend(getUserId(), targetId, greetMsg)
         return result != null
     }
+
     // 通过朋友验证
     suspend fun handleApply(
         applicantId: String,
@@ -50,9 +62,20 @@ class ContactRepository @Inject constructor(
         applicantRemark: String, // 备注
         myId: String,
         isApproved: Boolean, // 是否通过
+        greetMsg: String
     ) {
         socialApi.handleApply(applicantId, myId, isApproved)
         if (isApproved) {
+            applyDao.saveApply(
+                ApplyEntity(
+                    applicantId,
+                    applicantAvatar,
+                    applicantSex.toInt(),
+                    greetMsg,
+                    applicantNickname,
+                    1
+                )
+            )
             contactDao.saveContact(
                 ContactEntity(
                     applicantId,
@@ -62,7 +85,44 @@ class ContactRepository @Inject constructor(
                     FriendStatusEntity(false, false, false, applicantRemark)
                 )
             )
+        } else {
+            applyDao.saveApply(
+                ApplyEntity(
+                    applicantId,
+                    applicantAvatar,
+                    applicantSex.toInt(),
+                    greetMsg,
+                    applicantNickname,
+                    2
+                )
+            )
         }
+    }
+
+    suspend fun updateContactStatus(
+        id: String,
+        isMuted: Boolean,
+        isTopped: Boolean,
+        isBlocked: Boolean,
+        remark: String?
+    ) {
+        socialApi.updateFriendStatus(
+            getUserId(),
+            id,
+            isMuted,
+            isTopped,
+            isBlocked,
+            remark
+        )
+        contactDao.updateContactStatus(
+            id,
+            FriendStatusEntity(
+                isMuted,
+                isTopped,
+                isBlocked,
+                remark
+            )
+        )
     }
 
     suspend fun deleteFriend(myId: String, targetId: String) {
@@ -90,28 +150,19 @@ class ContactRepository @Inject constructor(
 
     val currentFriendListFlow = flow {
         // 先发射本地缓存数据，保证UI快速响应
-        val localContacts = contactDao.getAllContacts().sortedBy { it.nickName }
+        val localContacts = contactDao.getAllContactsFlow().first()
         emit(localContacts)
         // 同步数据
-        val isSyncSuccess = syncContacts()
-        if (isSyncSuccess) {
-            val syncContacts = contactDao.getAllContacts().sortedBy { it.nickName }
-            emit(syncContacts)
-        } else {
-            // throw Exception("同步联系人失败")
-            Log.e("myTag", "同步联系人失败")
-        }
+        syncContacts()
+    }.combine(contactDao.getAllContactsFlow()) { _, latestLocal ->
+        latestLocal
     }
-    val currentApplyListFlow = flow {
-        val localApplies = applyDao.getApplyList()
+    val currentApplyListFlow: Flow<List<ApplyEntity>> = flow {
+        val localApplies = applyDao.getApplyListFlow().first()
         emit(localApplies)
-
-        val isSyncSuccess = syncApplies()
-        if (isSyncSuccess) {
-            emit(applyDao.getApplyList())
-        } else {
-            Log.e("myTag", "同步好友请求列表失败")
-        }
+        syncApplies()
+    }.combine(applyDao.getApplyListFlow()) { _, latestLocal ->
+        latestLocal
     }
 
     suspend fun logout() {
@@ -120,7 +171,7 @@ class ContactRepository @Inject constructor(
 
     suspend fun syncApplies(): Boolean = withContext(Dispatchers.IO) {
         val remoteApplies = socialApi.getApplyList(getUserId())
-        val localApplies = applyDao.getApplyList()
+        val localApplies = applyDao.getApplyListFlow().first()
         val localApplyMap = localApplies.associateBy { it.userId }
         if (remoteApplies == null) {
             return@withContext false
@@ -145,7 +196,7 @@ class ContactRepository @Inject constructor(
         true
     }
 
-    // 同步本地数据库
+
     suspend fun syncContacts(): Boolean = withContext(Dispatchers.IO) {
         try {
             val userId = getUserId()
@@ -157,7 +208,7 @@ class ContactRepository @Inject constructor(
             }
 
             val serverFriends = friendListResp.friendList
-            val localContacts = contactDao.getAllContacts()
+            val localContacts = contactDao.getAllContactsFlow().first()
             val localContactMap = localContacts.associateBy { it.id }
 
             val serverContacts = serverFriends.map { convertToContactEntity(it) }
@@ -194,7 +245,7 @@ class ContactRepository @Inject constructor(
             nickName = friend.nickname,
             avatar = friend.avatarUrl,
             sex = friend.gender.toByte(),
-            states = FriendStatusEntity(
+            status = FriendStatusEntity(
                 isMuted = friend.status.isMuted,
                 isTopped = friend.status.isTopped,
                 isBlocked = friend.status.isBlocked,
@@ -208,6 +259,6 @@ class ContactRepository @Inject constructor(
         return local.nickName != server.nickName ||
                 local.avatar != server.avatar ||
                 local.sex != server.sex ||
-                local.states != server.states
+                local.status != server.status
     }
 }

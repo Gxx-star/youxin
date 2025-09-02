@@ -13,6 +13,7 @@ data class ApplyFriendReq(
     @SerializedName("target_id")
     val targetId: String
 )
+
 /**
  * 处理申请好友请求
  */
@@ -24,6 +25,7 @@ data class HandleApplyReq(
     @SerializedName("target_id")
     val targetId: String
 )
+
 /**
  * 更新个人信息请求
  */
@@ -31,4 +33,25 @@ data class UpdateUserInfoReq(
     val avatar: String,
     val nickname: String,
     val sex: Int
+)
+
+/**
+ * 更新好友状态请求
+ */
+data class UpdateFriendStatusReq(
+    @SerializedName("user_id")
+    val userId: String,
+    @SerializedName("friend_id")
+    val friendId: String,
+    val status: Status
+)
+
+data class Status(
+    @SerializedName("is_blocked")
+    val isBlocked: Boolean,
+    @SerializedName("is_muted")
+    val isMuted: Boolean,
+    @SerializedName("is_topped")
+    val isTopped: Boolean,
+    val remark: String?
 )

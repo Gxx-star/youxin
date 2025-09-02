@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.example.youxin.data.db.entity.ContactEntity
+import com.example.youxin.data.db.entity.FriendStatusEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -16,7 +17,7 @@ interface ContactDao {
     suspend fun updateContact(contact: ContactEntity)
 
     @Query("SELECT * FROM contacts")
-    suspend fun getAllContacts(): List<ContactEntity>
+    fun getAllContactsFlow(): Flow<List<ContactEntity>>
 
     @Query("SELECT * FROM contacts ORDER BY nickName ASC")
     fun observeAllContactsSortedByName(): Flow<List<ContactEntity>>
@@ -29,4 +30,10 @@ interface ContactDao {
 
     @Query("DELETE FROM contacts WHERE id = :id")
     suspend fun deleteContactById(id: String): Int
+
+    @Query("UPDATE contacts SET status = :status WHERE id = :id")
+    suspend fun updateContactStatus(id: String, status: FriendStatusEntity)
+
+    @Query("SELECT status from contacts WHERE id = :id")
+    fun observeContactStatusById(id: String): Flow<FriendStatusEntity>
 }

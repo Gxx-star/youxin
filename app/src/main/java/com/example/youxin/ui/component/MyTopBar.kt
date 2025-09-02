@@ -14,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -35,6 +36,7 @@ import com.example.youxin.ui.theme.WechatGray1
 fun MyTopBar(
     title: String,
     onClick: () -> Unit = {},
+    colors: TopAppBarColors? = null,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     Box {
@@ -60,9 +62,10 @@ fun MyTopBar(
                     )
                 }
             },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = WechatGray1
-            ),
+            colors = colors
+                ?: TopAppBarDefaults.topAppBarColors(
+                    containerColor = WechatGray1
+                ),
             actions = actions,
             modifier = Modifier
                 .fillMaxWidth()

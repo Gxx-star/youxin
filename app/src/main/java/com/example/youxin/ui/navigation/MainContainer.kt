@@ -50,10 +50,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.youxin.R
 import com.example.youxin.data.db.entity.ApplyEntity
+import com.example.youxin.data.db.entity.ContactEntity
 import com.example.youxin.ui.screen.home.AddFriendScreen
+import com.example.youxin.ui.screen.home.ContactDetailScreen
 import com.example.youxin.ui.screen.home.YouxinScreen
 import com.example.youxin.ui.screen.home.ContactScreen
 import com.example.youxin.ui.screen.home.DiscoverScreen
+import com.example.youxin.ui.screen.home.FriendDataSettingsScreen
 import com.example.youxin.ui.screen.home.MeScreen
 import com.example.youxin.ui.screen.home.NewFriendScreen
 import com.example.youxin.ui.screen.home.PersonalDataScreen
@@ -142,6 +145,32 @@ fun MainContainer(
                         mainNavController,
                         contactViewModel,
                         it
+                    )
+                }
+            }
+            composable(MainRoutes.ContactRoutes.FRIEND_DETAIL_SCREEN + "/{encodedGson}") { backStackEntry ->
+                val encodedGson = backStackEntry.arguments?.getString("encodedGson")
+                val contactGson = Uri.decode(encodedGson)
+                val contactEntity = contactGson?.let {
+                    GsonBuilder().create().fromJson(it, ContactEntity::class.java)
+                }
+                contactEntity?.let {
+                    ContactDetailScreen(
+                        mainNavController,
+                        contactViewModel,
+                        it
+                    )
+                }
+            }
+            composable(MainRoutes.ContactRoutes.FRIEND_DATA_SETTINGS + "/{encodedGson}") {
+                val contactEntity = Uri.decode(it.arguments?.getString("encodedGson"))?.let {
+                    GsonBuilder().create().fromJson(it, ContactEntity::class.java)
+                }
+                contactEntity?.let {
+                    FriendDataSettingsScreen(
+                        mainNavController,
+                        contactViewModel,
+                        contactEntity
                     )
                 }
             }

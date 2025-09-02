@@ -33,6 +33,9 @@ object NavConstants {
             const val NEW_FRIEND_SCREEN = "new_friend_screen"
             const val ADD_FRIEND_SCREEN = "add_friend_screen"
             const val VERIFIED_FRIEND = "verified_friend"
+            const val FRIEND_DETAIL_SCREEN = "friend_detail_screen"
+            const val FRIEND_DATA_SETTINGS = "friend_data_settings"
+            const val FRIEND_REMARK_SETTINGS = "friend_remark_settings"
         }
 
         // 从[发现]打开的子页面

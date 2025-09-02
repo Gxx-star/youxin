@@ -193,6 +193,7 @@ fun PersonalDataScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateNicknameScreen(
     navController: NavController,
@@ -274,6 +275,7 @@ fun UpdateNicknameScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun UpdateSexScreen(

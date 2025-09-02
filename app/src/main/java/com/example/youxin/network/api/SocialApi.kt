@@ -3,6 +3,8 @@ package com.example.youxin.network.api
 import com.example.youxin.network.model.ApiResponse
 import com.example.youxin.network.model.request.ApplyFriendReq
 import com.example.youxin.network.model.request.HandleApplyReq
+import com.example.youxin.network.model.request.Status
+import com.example.youxin.network.model.request.UpdateFriendStatusReq
 import com.example.youxin.network.model.response.ApplyFriendResp
 import com.example.youxin.network.model.response.FindUserResp
 import com.example.youxin.network.model.response.GetApplyListResp
@@ -65,5 +67,18 @@ class SocialApi @Inject constructor(
         } else {
             null
         }
+    }
+
+    suspend fun updateFriendStatus(
+        fromUid: String,
+        toUid: String,
+        isMuted: Boolean,
+        isTopped: Boolean,
+        isBlocked: Boolean,
+        remark: String?
+    ) {
+        val request =
+            UpdateFriendStatusReq(fromUid, toUid, Status(isBlocked, isMuted, isTopped, remark))
+        socialService.updateFriendStatus(request)
     }
 }

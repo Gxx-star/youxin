@@ -19,9 +19,10 @@ object NetworkConstants {
     // 社交模块的uri
     object Social {
         const val APPLY_FRIEND = "v1/social/firend/applyFriend"
-        const val HANDLE_APPLY = "v1/social/firend/handleApply"
+        const val HANDLE_APPLY = "v1/social/firend/handleFriendApply"
         const val DELETE_FRIEND = "v1/social/firend/deleteFriend"
         const val GET_FRIEND_LIST = "v1/social/firend/getFriendList"
         const val GET_APPLY_LIST = "v1/social/firend/getHandleFriendApplyList"
+        const val UPDATE_FRIEND_STATUS = "v1/social/firend/updateFriendStatus"
     }
 }

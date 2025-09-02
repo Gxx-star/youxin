@@ -2,8 +2,6 @@ package com.example.youxin.data.db.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
-import com.google.gson.Gson
 
 /**
  * 联系人实体类
@@ -15,7 +13,7 @@ data class ContactEntity(
     val nickName: String,
     val avatar: String? = null,
     val sex: Byte,
-    val states: FriendStatusEntity
+    val status: FriendStatusEntity
 )
 
 /**

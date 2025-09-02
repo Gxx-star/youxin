@@ -1,5 +1,6 @@
 package com.example.youxin.ui.screen.home
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -32,6 +32,7 @@ import com.example.youxin.ui.component.MenuItem
 import com.example.youxin.ui.theme.WechatGray4
 import com.example.youxin.ui.viewmodel.ContactViewModel
 import com.example.youxin.utils.constant.NavConstants
+import com.google.gson.GsonBuilder
 
 /**
  * 通讯录页面
@@ -41,6 +42,9 @@ fun ContactScreen(
     navController: NavController,
     contactViewModel: ContactViewModel
 ) {
+    LaunchedEffect(Unit) {
+        contactViewModel.syncWithServer()
+    }
     val menuItems = listOf(
         ContactMenu.NewFriend,
         ContactMenu.GroupChar,
@@ -80,13 +84,18 @@ fun ContactScreen(
                     items(
                         friendList.size
                     ){
+                        val haveRemark = friendList[it].status.remark != ""
                         MenuItem(
                             imageUri = friendList[it].avatar,
-                            title = friendList[it].nickName,
+                            title = (if(haveRemark) friendList[it].status.remark else friendList[it].nickName).toString(),
                             currentValue = null,
                             displayArrow = false,
                             onClick = {
+                                contactViewModel.updateSelectedContact(friendList[it].id)
                                 // 好友详情页
+                                val contactGson = GsonBuilder().create().toJson(friendList[it])
+                                val encodeGson = Uri.encode(contactGson)
+                                navController.navigate("${NavConstants.MainRoutes.ContactRoutes.FRIEND_DETAIL_SCREEN}/$encodeGson")
                             }
                         )
                     }
