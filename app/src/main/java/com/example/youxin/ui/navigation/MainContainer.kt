@@ -57,6 +57,7 @@ import com.example.youxin.ui.screen.home.YouxinScreen
 import com.example.youxin.ui.screen.home.ContactScreen
 import com.example.youxin.ui.screen.home.DiscoverScreen
 import com.example.youxin.ui.screen.home.FriendDataSettingsScreen
+import com.example.youxin.ui.screen.home.FriendRemarkSettingsScreen
 import com.example.youxin.ui.screen.home.MeScreen
 import com.example.youxin.ui.screen.home.NewFriendScreen
 import com.example.youxin.ui.screen.home.PersonalDataScreen
@@ -171,6 +172,18 @@ fun MainContainer(
                         mainNavController,
                         contactViewModel,
                         contactEntity
+                    )
+                }
+            }
+            composable(ContactRoutes.FRIEND_REMARK_SETTINGS+"/{encodeGson}"){
+                val contactId = Uri.decode(it.arguments?.getString("encodeGson"))?.let{
+                    GsonBuilder().create().fromJson(it, String::class.java)
+                }
+                contactId?.let {
+                    FriendRemarkSettingsScreen(
+                        mainNavController,
+                        contactViewModel,
+                        contactId
                     )
                 }
             }

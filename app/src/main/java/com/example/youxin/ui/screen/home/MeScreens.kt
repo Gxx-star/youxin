@@ -6,6 +6,7 @@ import android.R.attr.fontWeight
 import android.R.attr.onClick
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.border
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -120,6 +121,9 @@ fun SettingScreen(
     }
 }
 
+/**
+ * 个人资料页面
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PersonalDataScreen(
@@ -193,6 +197,9 @@ fun PersonalDataScreen(
     }
 }
 
+/**
+ * 修改昵称页面
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateNicknameScreen(
@@ -260,6 +267,8 @@ fun UpdateNicknameScreen(
                 ),
                 modifier = Modifier
                     .padding(start = 16.dp, end = 16.dp)
+                    .border(1.dp, WechatGray4)
+                    .clip(RoundedCornerShape(3.dp))
                     .fillMaxWidth()
             )
             Text(

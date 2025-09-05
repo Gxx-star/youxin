@@ -47,14 +47,16 @@ class ContactViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = FriendStatusEntity(false, false, false, null)
         )
-    fun updateSelectedContact(id: String) {
+    fun updateSelectedContact(id: String?) {
         _currentSelectedContactId.value = id
     }
 
     fun updateRemark(remark: String) {
         _inputRemark.value = remark
     }
-
+    suspend fun deleteFriend(targetId: String) {
+        contactRepository.deleteFriend(getUserId()!!, targetId)
+    }
     suspend fun syncWithServer() {
         Log.d("myTag", "同步数据")
         contactRepository.syncWithServer()

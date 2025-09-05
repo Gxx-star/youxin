@@ -2,11 +2,15 @@ package com.example.youxin.ui.screen.home
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.util.Log
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,16 +24,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonDefaults.buttonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
@@ -42,8 +52,11 @@ import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -54,6 +67,7 @@ import com.example.youxin.ui.component.MenuItem
 import com.example.youxin.ui.component.MyTopBar
 import com.example.youxin.ui.theme.WechatGray1
 import com.example.youxin.ui.theme.WechatGray4
+import com.example.youxin.ui.theme.WechatGreen
 import com.example.youxin.ui.theme.WechatLightBlue
 import com.example.youxin.ui.theme.WechatLightGray
 import com.example.youxin.ui.theme.White
@@ -423,7 +437,9 @@ fun AddFriendScreen(
             )
         }
     ) {
-        Box(modifier = Modifier.padding(it)) {}
+        Box(modifier = Modifier.padding(it)) {
+
+        }
 
     }
 }
@@ -597,15 +613,360 @@ fun ContactDetailScreen(
 
     }
 }
+
 /**
  * 好友设置页面
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendDataSettingsScreen(
     navController: NavController,
     contactViewModel: ContactViewModel,
     contact: ContactEntity
-){
+) {
     val currentSelectedContactStatus by contactViewModel.contactStatusFlow.collectAsState()
-    
+    var showBlockedConfirmationDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    // 拉黑弹出的对话框
+    if (showBlockedConfirmationDialog) {
+        Dialog(
+            onDismissRequest = { showBlockedConfirmationDialog = false },
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true
+            )
+        ) {
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+            ) {
+                Box(
+                    modifier = Modifier.padding(24.dp)
+                ) {
+                    // 对话框标题
+                    Text(
+                        text = "加入黑名单",
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.align(Alignment.TopStart)
+                    )
+                    // 对话框内容
+                    Text(
+                        text = "加入黑名单后，你将不再收到对方的消息，并且你们互相看不到对方朋友圈的更新。",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(top = 48.dp, bottom = 32.dp)
+                    )
+                    // 按钮区域
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(
+                            onClick = { showBlockedConfirmationDialog = false },
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text("取消", color = WechatGray4)
+                        }
+                        TextButton(
+                            onClick = {
+                                showBlockedConfirmationDialog = false
+                                scope.launch {
+                                    contactViewModel.updateContactStatus(
+                                        contact.id,
+                                        currentSelectedContactStatus.isMuted,
+                                        currentSelectedContactStatus.isTopped,
+                                        true,
+                                        currentSelectedContactStatus.remark
+                                    )
+                                }
+                            }
+                        ) {
+                            Text("确定", color = Color.Red)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // 删除好友弹出的对话框
+    if (showDeleteConfirmationDialog) {
+        Dialog(
+            onDismissRequest = { showDeleteConfirmationDialog = false },
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true
+            )
+        ) {
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+            ) {
+                Box(
+                    modifier = Modifier.padding(24.dp)
+                ) {
+                    // 对话框标题
+                    Text(
+                        text = "删除联系人",
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.align(Alignment.TopStart)
+                    )
+                    // 对话框内容
+                    Text(
+                        text = "删除联系人后，将同时删除与该联系人的聊天记录",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(top = 48.dp, bottom = 32.dp)
+                    )
+                    // 按钮区域
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(
+                            onClick = { showBlockedConfirmationDialog = false },
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text("取消", color = WechatGray4)
+                        }
+                        TextButton(
+                            onClick = {
+                                showBlockedConfirmationDialog = false
+                                scope.launch {
+                                    contactViewModel.updateSelectedContact(null)
+                                    navController.navigate(NavConstants.MainRoutes.CONTACT_SCREEN) {
+                                        popUpTo(NavConstants.MainRoutes.CONTACT_SCREEN) {
+                                            inclusive = true
+                                        }
+                                    }
+                                    // 删除好友
+                                    contactViewModel.deleteFriend(contact.id)
+                                }
+                            }
+                        ) {
+                            Text("确定", color = Color.Red)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Scaffold(
+        topBar = {
+            MyTopBar(
+                title = "朋友设置",
+                onClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+        ) {
+            MenuItem(
+                title = "设置备注",
+                currentValue = currentSelectedContactStatus.remark,
+                displayArrow = true,
+                onClick = {
+                    navController.navigate(
+                        "${ContactRoutes.FRIEND_REMARK_SETTINGS}/${
+                            Uri.encode(
+                                GsonBuilder().create().toJson(contact.id)
+                            )
+                        }"
+                    )
+                }
+            )
+            MenuItem(title = "把他(她)推荐给朋友", displayArrow = true) {}
+            Box(
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(White)
+            ) {
+                Text(
+                    text = "加入黑名单",
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .padding(start = 20.dp)
+                        .align(Alignment.CenterStart)
+                )
+                // 颜色动画
+                val currentColor by animateColorAsState(
+                    if (currentSelectedContactStatus.isBlocked)
+                        Color.Green
+                    else
+                        Color.LightGray
+                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 20.dp)
+                        .size(40.dp, 24.dp)
+                        .clip(CircleShape)
+                        .background(
+                            currentColor
+                        )
+                        .clickable {
+                            scope.launch {
+                                // 根据当前实际状态处理点击事件
+                                if (!currentSelectedContactStatus.isBlocked) {
+                                    // 未拉黑状态：显示确认对话框
+                                    showBlockedConfirmationDialog = true
+                                } else {
+                                    // 已拉黑状态：直接取消拉黑
+                                    contactViewModel.updateContactStatus(
+                                        contact.id,
+                                        currentSelectedContactStatus.isMuted,
+                                        currentSelectedContactStatus.isTopped,
+                                        false,
+                                        currentSelectedContactStatus.remark
+                                    )
+                                }
+                            }
+                        },
+                    contentAlignment = if (currentSelectedContactStatus.isBlocked)
+                        Alignment.CenterEnd
+                    else
+                        Alignment.CenterStart
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(CircleShape)
+                            .background(White)
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(White)
+                    .clickable(
+                        onClick = {
+                            // 删除好友
+                            showDeleteConfirmationDialog = true
+                        }
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "删除",
+                    color = Color.Red,
+                    fontSize = 16.sp
+                )
+            }
+        }
+    }
+}
+
+/**
+ * 好友备注设置页面
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FriendRemarkSettingsScreen(
+    navController: NavController,
+    contactViewModel: ContactViewModel,
+    contactId: String
+) {
+    val initialStatus by contactViewModel.contactStatusFlow.collectAsState()
+    var inputRemark by remember { mutableStateOf(initialStatus.remark.toString()) }
+    val scope = rememberCoroutineScope()
+    Scaffold(
+        topBar = {
+            MyTopBar(
+                title = "设置备注",
+                onClick = {
+                    navController.popBackStack()
+                },
+                actions = {
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                contactViewModel.updateContactStatus(
+                                    contactId,
+                                    initialStatus.isMuted,
+                                    initialStatus.isTopped,
+                                    initialStatus.isBlocked,
+                                    inputRemark
+                                )
+                                navController.popBackStack()
+                            }
+                        },
+                        enabled = inputRemark.isNotEmpty(),
+                        shape = RoundedCornerShape(4.dp),
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .width(55.dp)
+                            .height(30.dp),
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                        colors = buttonColors(
+                            containerColor = if (inputRemark.orEmpty()
+                                    .isNotEmpty()
+                            ) WechatGreen else WechatGray1,
+                            contentColor = if (inputRemark.orEmpty()
+                                    .isNotEmpty()
+                            ) Color.White else Color(0xFF999999),
+                        )
+                    ) {
+                        Text(
+                            text = "完成",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+            )
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+        ) {
+            Text(
+                text = "备注",
+                fontSize = 10.sp,
+                color = WechatGray4,
+                modifier = Modifier
+                    .padding(start = 20.dp, top = 10.dp)
+            )
+            TextField(
+                value = inputRemark,
+                onValueChange = {
+                    inputRemark = it
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    focusedTextColor = Black,
+                    unfocusedTextColor = WechatGray4
+                ),
+                modifier = Modifier
+                    .padding(start = 20.dp, end = 20.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(3.dp))
+                    .border(1.dp, WechatGray4),
+                singleLine = true
+            )
+        }
+    }
 }

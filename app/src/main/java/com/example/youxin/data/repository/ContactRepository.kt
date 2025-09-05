@@ -44,9 +44,11 @@ class ContactRepository @Inject constructor(
         syncApplies()
         syncContacts()
     }
+
     fun getContactStatusFlow(id: String): Flow<FriendStatusEntity> {
         return contactDao.observeContactStatusById(id)
     }
+
     // 申请添加朋友
     suspend fun addApplyFriend(targetId: String, greetMsg: String): Boolean {
         val result = socialApi.applyFriend(getUserId(), targetId, greetMsg)
@@ -75,6 +77,14 @@ class ContactRepository @Inject constructor(
                     applicantNickname,
                     1
                 )
+            )
+            socialApi.updateFriendStatus(
+                myId,
+                applicantId,
+                false,
+                false,
+                false,
+                applicantRemark
             )
             contactDao.saveContact(
                 ContactEntity(
@@ -173,7 +183,7 @@ class ContactRepository @Inject constructor(
         val remoteApplies = socialApi.getApplyList(getUserId())
         val localApplies = applyDao.getApplyListFlow().first()
         val localApplyMap = localApplies.associateBy { it.userId }
-        if (remoteApplies == null) {
+        if (remoteApplies?.list == null) {
             return@withContext false
         }
         val appliesToAdd = remoteApplies.list.filter { item ->

@@ -16,7 +16,7 @@ data class ApplyFriendResp(
  * 获取申请请求列表
  */
 data class GetApplyListResp(
-    val list: List<Apply>
+    val list: List<Apply>?
 )
 
 data class Apply(
