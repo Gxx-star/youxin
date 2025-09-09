@@ -6,8 +6,8 @@ import com.example.youxin.utils.constant.DbConstants
 
 @Entity(tableName = "current_user")
 data class CurrentUserEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long?, // 用户本地id
+    @PrimaryKey
+    val id: String, // 用户本地id
     val phone: String, // 手机号
     val nickName: String?, // 昵称
     val token: String, // 登录令牌

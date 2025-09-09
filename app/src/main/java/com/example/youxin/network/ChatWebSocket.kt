@@ -7,6 +7,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.youxin.data.db.entity.ChatLogEntity
 import com.example.youxin.data.db.entity.CurrentUserEntity
 import com.example.youxin.data.repository.UserRepository
+import com.example.youxin.di.DataStoreManager
+import com.example.youxin.network.info.MessageFrame
 import com.example.youxin.ui.viewmodel.AppViewModel
 import com.example.youxin.utils.constant.NetworkConstants
 import com.google.gson.Gson
@@ -29,13 +31,16 @@ import kotlin.jvm.java
 @Singleton
 class ChatWebSocket @Inject constructor(
     private val okHttpClient: OkHttpClient,
-    private val currentUserRepository: UserRepository
+    private val currentUserRepository: UserRepository,
+    private val dataStoreManager: DataStoreManager
 ) {
+
     val gson: Gson = Gson()
+    val currentUserId = MutableStateFlow<String?>(null)
     var currentUser = MutableStateFlow<CurrentUserEntity?>(null)
     private var webSocket: WebSocket? = null
-    private val _receivedMessages = MutableSharedFlow<ChatLogEntity>()
-    val receivedMessages: SharedFlow<ChatLogEntity> = _receivedMessages
+    private val _receivedMessages = MutableSharedFlow<MessageFrame>()
+    val receivedMessages: SharedFlow<MessageFrame> = _receivedMessages
 
     // 新增：连接状态Flow（供UI观察）
     private val _connectionState = MutableSharedFlow<Boolean>()
@@ -46,11 +51,17 @@ class ChatWebSocket @Inject constructor(
 
     init {
         CoroutineScope(Dispatchers.Main).launch {
-            currentUserRepository.observeCurrentUser().collect{
+            currentUserRepository.observeCurrentUser().collect {
                 if (it != null) {
                     currentUser.value = it
                     connect()
+                    Log.d("myTag", "收集成功")
                 }
+            }
+        }
+        CoroutineScope(Dispatchers.Main).launch {
+            dataStoreManager.getUserIdFlow.collect {
+                    currentUserId.value = it
             }
         }
     }
@@ -58,13 +69,17 @@ class ChatWebSocket @Inject constructor(
     fun connect() {
         if (currentUser.value == null) return
         if (isConnected()) return // 避免重复连接
+        Log.d("myTag", currentUser.value!!.id.toString())
         val request = Request.Builder()
-            .url("ws://${NetworkConstants.BASE_URL}/ws?userId=${currentUser.value!!.id}")
+            .url("ws://114.215.194.88:9080/ws")
+            .header("userId", currentUser.value!!.id)
+            .header("Authorization", currentUser.value!!.token)
             .build()
         webSocket = okHttpClient.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: okhttp3.Response) {
                 super.onOpen(webSocket, response)
                 // 连接成功：重置重连计数，发送连接状态
+                Log.d("myTag", "连接成功")
                 reconnectCount = 0
                 CoroutineScope(Dispatchers.Main).launch {
                     _connectionState.emit(true)
@@ -72,8 +87,10 @@ class ChatWebSocket @Inject constructor(
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
+                Log.d("myTag", text.toString())
                 // 接收消息逻辑不变
-                val message = gson.fromJson(text, ChatLogEntity::class.java)
+                val message = gson.fromJson(text, MessageFrame::class.java)
+                Log.d("myTag", message.toString())
                 CoroutineScope(Dispatchers.Main).launch {
                     _receivedMessages.emit(message)
                 }
@@ -84,6 +101,7 @@ class ChatWebSocket @Inject constructor(
                 t: Throwable,
                 response: okhttp3.Response?
             ) {
+                Log.d("myTag", "连接失败"+t.toString())
                 super.onFailure(webSocket, t, response)
                 t.printStackTrace()
                 // 连接失败：发送状态，触发重连
@@ -100,7 +118,6 @@ class ChatWebSocket @Inject constructor(
                 }
             }
         })
-        Log.d("myTag", "连接成功")
     }
 
     // 重连逻辑（指数退避：1s→2s→4s...最大10s）
@@ -120,7 +137,7 @@ class ChatWebSocket @Inject constructor(
     }
 
     // 发送消息、断开连接方法不变...
-    fun sendMessage(message: ChatLogEntity) {
+    fun sendMessage(message: MessageFrame) {
         val json = gson.toJson(message)
         webSocket?.send(json)
         Log.d("myTag", "发送成功")

@@ -18,7 +18,7 @@ import com.example.youxin.data.db.entity.CurrentUserEntity
  * @TODO 定义数据库总入口、关联所有实体和DAO
  */
 @Database(
-    version = 2,
+    version = 1,
     entities = [CurrentUserEntity::class, ContactEntity::class, ApplyEntity::class, ChatLogEntity::class, ConversationEntity::class]
 )
 @TypeConverters(Converters::class)

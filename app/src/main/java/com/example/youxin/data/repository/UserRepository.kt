@@ -29,7 +29,7 @@ class UserRepository @Inject constructor(
         val registerResp = userApi.register(phone, password, nickname, sex, avatar)
         if (registerResp != null) {
             return CurrentUserEntity(
-                id = 1,
+                id = "init",
                 phone = phone,
                 nickName = nickname,
                 sex = sex,
@@ -55,7 +55,7 @@ class UserRepository @Inject constructor(
             val user = userApi.getUserInfo(loginResp.token)?.info
             dataStoreManager.saveUserId(user?.id.toString())
             return CurrentUserEntity(
-                id = 1,
+                id = user?.id.toString(),
                 phone = phone,
                 nickName = user?.nickname,
                 sex = user?.sex,
