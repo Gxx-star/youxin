@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.youxin.data.db.entity.ChatLogEntity
 import com.example.youxin.data.db.entity.CurrentUserEntity
 import com.example.youxin.di.NetworkModule
+import com.example.youxin.ui.viewmodel.AppViewModel
 import com.example.youxin.utils.constant.NavConstants
 import com.example.youxin.utils.constant.NetworkConstants
 import com.google.gson.Gson
@@ -24,9 +25,10 @@ import kotlin.jvm.java
 @Singleton
 class ChatWebSocket @Inject constructor(
     private val okHttpClient: OkHttpClient,
-    private val currentUser: CurrentUserEntity?,
+    private val appViewModel: AppViewModel,
     private val gson: Gson
 ) {
+    private val currentUser: CurrentUserEntity? = appViewModel.currentUser.value
     private var webSocket: WebSocket? = null
     private val _receivedMessages = MutableSharedFlow<ChatLogEntity>()
     val receivedMessages: SharedFlow<ChatLogEntity> = _receivedMessages
