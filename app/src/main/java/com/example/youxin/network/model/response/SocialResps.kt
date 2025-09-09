@@ -3,6 +3,13 @@ package com.example.youxin.network.model.response
 import com.google.gson.annotations.SerializedName
 
 /**
+ * 获取申请请求列表
+ */
+data class GetApplyListResp(
+    val list: List<Apply>?
+)
+
+/**
  * 申请好友的响应
  */
 data class ApplyFriendResp(
@@ -10,13 +17,6 @@ data class ApplyFriendResp(
     val applyId: String,
     @SerializedName("apply_time")
     val applyTime: Int
-)
-
-/**
- * 获取申请请求列表
- */
-data class GetApplyListResp(
-    val list: List<Apply>?
 )
 
 data class Apply(

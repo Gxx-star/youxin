@@ -63,7 +63,6 @@ class MeViewModel @Inject constructor(
     }
 
     suspend fun updateUserInfo(): Boolean {
-        Log.d("myTag", _uiState.value.toString())
         userRepository.updateUserInfo(
             _uiState.value.inputNickname ?: return false,
             _uiState.value.selectedSex ?: return false,

@@ -6,6 +6,9 @@ import android.R.attr.fontWeight
 import android.R.attr.onClick
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -40,13 +43,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.youxin.MyApplication
 import com.example.youxin.R
 import com.example.youxin.data.db.entity.CurrentUserEntity
 import com.example.youxin.ui.component.AppButton
@@ -59,6 +65,8 @@ import com.example.youxin.ui.theme.WechatGreen
 import com.example.youxin.ui.viewmodel.AppViewModel
 import com.example.youxin.ui.viewmodel.MeViewModel
 import com.example.youxin.ui.viewmodel.PersonalDataViewModel
+import com.example.youxin.ui.viewmodel.RegisterViewModel
+import com.example.youxin.utils.OssUploader
 import com.example.youxin.utils.constant.NavConstants
 import com.example.youxin.utils.constant.NavConstants.MainRoutes.MeRoutes
 import com.google.common.collect.Multimaps.index
@@ -129,8 +137,27 @@ fun SettingScreen(
 fun PersonalDataScreen(
     navController: NavController,
     appViewModel: AppViewModel,
-    personalDataViewModel: PersonalDataViewModel
+    registerViewModel: RegisterViewModel,
+    meViewModel: MeViewModel
 ) {
+    meViewModel.initializeMeState()
+    val scope = rememberCoroutineScope()
+    // 相册选择launcher
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        // 更新头像
+        uri?.let {
+            scope.launch {
+                val context = MyApplication.getContext()
+                val uri = OssUploader.uploadFile(registerViewModel.saveAvatarToPrivateDir(context, it)?.toUri())
+                meViewModel.uploadAvatar(uri)
+                uri.let { uriString ->
+                    meViewModel.updateUserInfo()
+                }
+            }
+        }
+    }
     val user: CurrentUserEntity? by appViewModel.currentUser.collectAsState()
     val userId by appViewModel.userIdFlow.collectAsState(null)
     val items = listOf(
@@ -164,9 +191,10 @@ fun PersonalDataScreen(
                                 currentValue = null,
                                 displayArrow = false,
                                 onClick = {
-                                    if (items[index].first.route != null) {
-                                        navController.navigate(items[index].first.route.toString())
-                                    }
+                                    val request = PickVisualMediaRequest(
+                                        mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                                    )
+                                    pickImageLauncher.launch(request)
                                 })
                             AsyncImage(
                                 model = items[index].second,
@@ -175,6 +203,8 @@ fun PersonalDataScreen(
                                     .align(Alignment.CenterEnd)
                                     .padding(end = 20.dp, top = 10.dp)
                                     .size(30.dp)
+                                    .clip(RoundedCornerShape(5.dp)),
+                                contentScale = ContentScale.Crop
                             )
                         }
                     }

@@ -3,6 +3,7 @@ package com.example.youxin.ui.screen.login
 import android.R.attr.contentDescription
 import android.R.attr.onClick
 import android.R.attr.text
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -38,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -53,7 +55,9 @@ import com.example.youxin.ui.component.AppButton
 import com.example.youxin.ui.component.Loading
 import com.example.youxin.ui.viewmodel.AppViewModel
 import com.example.youxin.ui.viewmodel.RegisterViewModel
+import com.example.youxin.utils.OssUploader
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 @Composable
 fun RegisterScreen(
@@ -79,8 +83,8 @@ fun RegisterScreen(
         // 更新头像
         uri?.let {
             scope.launch {
-                val uri = registerViewModel.saveAvatarToPrivateDir(context, it)
-                uri?.let { uriString ->
+                val uri = OssUploader.uploadFile(registerViewModel.saveAvatarToPrivateDir(context, it)?.toUri())
+                uri.let { uriString ->
                     registerViewModel.updateAvatar(uriString)
                 }
             }
@@ -120,16 +124,17 @@ fun RegisterScreen(
                 model = uiState.avatar,
                 contentDescription = null,
                 modifier = Modifier
+                    .padding(16.dp)
                     .width(100.dp)
                     .height(100.dp)
-                    .padding(16.dp)
                     .clickable(onClick = {
                         // 选择头像并更新
                         val request = PickVisualMediaRequest(
                             mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
                         )
                         pickImageLauncher.launch(request)
-                    })
+                    }),
+                contentScale = ContentScale.Crop
             )
             // 表单输入区域
             Column(

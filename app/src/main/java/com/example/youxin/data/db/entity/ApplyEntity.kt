@@ -10,7 +10,6 @@ import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
 import kotlinx.serialization.Serializable
 
-@Parcelize // 序列化，在跳转路由时传递数据
 @Entity(tableName = "applies")
 data class ApplyEntity(
     @PrimaryKey()
@@ -23,4 +22,4 @@ data class ApplyEntity(
     val greetMsg: String,
     val nickname: String,
     val status: Int
-): Parcelable
+)

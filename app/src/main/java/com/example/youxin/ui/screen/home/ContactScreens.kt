@@ -2,10 +2,8 @@ package com.example.youxin.ui.screen.home
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,16 +24,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonDefaults.buttonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -52,6 +53,7 @@ import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,12 +62,15 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.youxin.MyApplication
 import com.example.youxin.R
 import com.example.youxin.data.db.entity.ApplyEntity
 import com.example.youxin.data.db.entity.ContactEntity
+import com.example.youxin.ui.component.Loading
 import com.example.youxin.ui.component.MenuItem
 import com.example.youxin.ui.component.MyTopBar
 import com.example.youxin.ui.theme.WechatGray1
+import com.example.youxin.ui.theme.WechatGray2
 import com.example.youxin.ui.theme.WechatGray4
 import com.example.youxin.ui.theme.WechatGreen
 import com.example.youxin.ui.theme.WechatLightBlue
@@ -421,26 +426,146 @@ fun VerifiedFriendScreen(
 /**
  * 添加好友页面
  */
+@SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddFriendScreen(
     navController: NavController,
     contactViewModel: ContactViewModel
 ) {
+    val scope = rememberCoroutineScope()
+    val inputContent = remember { mutableStateOf("") }
+    val selectedSearchMethod = remember { mutableIntStateOf(0) }
+    val searchResults = remember { mutableStateOf(listOf<ContactEntity>()) }
+    if (contactViewModel.isLoading.value == true) {
+        Loading()
+    }
     Scaffold(
         topBar = {
             MyTopBar(
-                title = "添加好友",
+                title = "添加朋友",
                 onClick = {
                     navController.popBackStack()
                 }
             )
         }
     ) {
-        Box(modifier = Modifier.padding(it)) {
-
+        Column(modifier = Modifier.padding(it)) {
+            TextField(
+                value = inputContent.value,
+                onValueChange = {
+                    inputContent.value = it
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Search // 软键盘右下角显示“搜索”
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {// 对应上面的ImeAction.Search
+                        scope.launch {
+                            searchResults.value = contactViewModel.findUser(
+                                phone = if (selectedSearchMethod.intValue == 0) inputContent.value else "\"\"",
+                                name = if (selectedSearchMethod.intValue == 1) inputContent.value else "\"\"",
+                                ids = if (selectedSearchMethod.intValue == 2) inputContent.value else "\"\""
+                            )
+                        }
+                    }
+                ),
+                modifier = Modifier
+                    .padding(start = 10.dp, end = 10.dp, top = 20.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(5.dp)),
+                placeholder = {
+                    Row {
+                        Icon(Icons.Default.Search, contentDescription = null)
+                        Text(text = "手机号/昵称/友信号搜索")
+                    }
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = White,
+                    unfocusedContainerColor = WechatGray2,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                )
+            )
+            // 搜索方式设置栏
+            Row(
+                modifier = Modifier
+                    .padding(start = 20.dp, end = 20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = selectedSearchMethod.intValue == 0,
+                    onClick = {
+                        selectedSearchMethod.intValue = 0
+                    },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = WechatGreen,
+                        unselectedColor = WechatGray4
+                    )
+                )
+                Text(
+                    text = "手机号搜索",
+                    fontSize = 12.sp,
+                )
+                RadioButton(
+                    selected = selectedSearchMethod.intValue == 1,
+                    onClick = {
+                        selectedSearchMethod.intValue = 1
+                    },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = WechatGreen,
+                        unselectedColor = WechatGray4
+                    )
+                )
+                Text(
+                    text = "昵称搜索",
+                    fontSize = 12.sp,
+                )
+                RadioButton(
+                    selected = selectedSearchMethod.intValue == 2,
+                    onClick = {
+                        selectedSearchMethod.intValue = 2
+                    },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = WechatGreen,
+                        unselectedColor = WechatGray4
+                    )
+                )
+                Text(
+                    text = "友信号搜索",
+                    fontSize = 12.sp,
+                )
+            }
+            LazyColumn {
+                items(searchResults.value.size) {
+                    MenuItem(
+                        imageUri = searchResults.value[it].avatar,
+                        title = searchResults.value[it].nickName,
+                    ) {
+                        scope.launch {
+                            if (contactViewModel.isFriend(searchResults.value[it].id)) {
+                                navController.navigate(
+                                    "${ContactRoutes.FRIEND_DETAIL_SCREEN}/${
+                                        Uri.encode(
+                                            GsonBuilder().create().toJson(searchResults.value[it])
+                                        )
+                                    }"
+                                )
+                            } else {
+                                navController.navigate(
+                                    "${ContactRoutes.APPLY_FRIEND_SCREEN}/${
+                                        Uri.encode(
+                                            GsonBuilder().create().toJson(searchResults.value[it])
+                                        )
+                                    }"
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
-
     }
 }
 
@@ -967,6 +1092,156 @@ fun FriendRemarkSettingsScreen(
                     .border(1.dp, WechatGray4),
                 singleLine = true
             )
+        }
+    }
+}
+
+/**
+ * 申请添加朋友页面
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ApplyFriendScreen(
+    navController: NavController,
+    contactViewModel: ContactViewModel,
+    contact: ContactEntity
+) {
+    val errorMsg by contactViewModel.promptMessage.collectAsState()
+    LaunchedEffect(errorMsg) {
+        if (errorMsg != null) {
+            Toast.makeText(
+                MyApplication.getContext(),
+                errorMsg,
+                Toast.LENGTH_SHORT
+            ).show()
+            contactViewModel.clearErrorMessage()
+        }
+    }
+    val scope = rememberCoroutineScope()
+    var inputGreetMsg by remember { mutableStateOf("我是") }
+    Scaffold(
+        topBar = {
+            MyTopBar(
+                title = "申请添加朋友",
+                onClick = {
+                    navController.popBackStack()
+                },
+                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                    containerColor = White
+                )
+            )
+        }
+    ) {
+        Box(modifier = Modifier.padding(it)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(WechatLightGray)
+            ) {
+                // 资料卡
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .background(White)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(top = 20.dp, start = 20.dp)
+                            .fillMaxSize()
+                    ) {
+                        AsyncImage(
+                            model = contact.avatar,
+                            contentDescription = "头像",
+                            modifier = Modifier
+                                .size(60.dp)
+                                .clip(RoundedCornerShape(5.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                        // 昵称、性别
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(start = 20.dp)
+                        ) {
+                            Row {
+                                Text(
+                                    text = contact.nickName,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Black,
+                                    fontSize = 20.sp
+                                )
+                                if (contact.sex != 0.toByte()) {
+                                    Icon(
+                                        painter = painterResource(id = if (contact.sex == 1.toByte()) R.drawable.man else R.drawable.woman),
+                                        contentDescription = "性别图标",
+                                        modifier = Modifier
+                                            .padding(start = 5.dp, top = 5.dp)
+                                            .size(20.dp),
+                                        tint = Color.Unspecified
+                                    )
+                                }
+                            }
+                            Text(
+                                text = "友信号: ${contact.id}",
+                                fontSize = 15.sp,
+                                color = WechatGray4
+                            )
+                        }
+                    }
+                }
+                // 朋友圈
+                MenuItem(title = "朋友圈", displayArrow = true) {
+                    // 进入该联系人朋友圈
+                }
+                // 打招呼区域
+                Text(
+                    text = "打招呼内容",
+                    modifier = Modifier
+                        .padding(start = 20.dp, top = 20.dp),
+                    fontSize = 12.sp,
+                    color = WechatGray4
+                )
+                TextField(
+                    value = inputGreetMsg,
+                    onValueChange = {
+                        inputGreetMsg = it
+                    },
+                    modifier = Modifier
+                        .padding(start = 10.dp, end = 10.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(5.dp)),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = WechatGray2,
+                        unfocusedContainerColor = WechatGray2,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    )
+                )
+                // 添加到通讯录
+                Box(
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .background(White)
+                        .clickable(onClick = {
+                            scope.launch {
+                                contactViewModel.applyFriend(
+                                    targetId = contact.id,
+                                    greetMsg = inputGreetMsg
+                                )
+                            }
+                        }),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "添加到通讯录",
+                        fontSize = 16.sp,
+                        color = WechatLightBlue
+                    )
+                }
+            }
         }
     }
 }

@@ -52,6 +52,7 @@ import com.example.youxin.R
 import com.example.youxin.data.db.entity.ApplyEntity
 import com.example.youxin.data.db.entity.ContactEntity
 import com.example.youxin.ui.screen.home.AddFriendScreen
+import com.example.youxin.ui.screen.home.ApplyFriendScreen
 import com.example.youxin.ui.screen.home.ContactDetailScreen
 import com.example.youxin.ui.screen.home.YouxinScreen
 import com.example.youxin.ui.screen.home.ContactScreen
@@ -72,6 +73,7 @@ import com.example.youxin.ui.viewmodel.ContactViewModel
 import com.example.youxin.ui.viewmodel.MainViewModel
 import com.example.youxin.ui.viewmodel.MeViewModel
 import com.example.youxin.ui.viewmodel.PersonalDataViewModel
+import com.example.youxin.ui.viewmodel.RegisterViewModel
 import com.example.youxin.utils.constant.NavConstants
 import com.example.youxin.utils.constant.NavConstants.MainRoutes
 import com.example.youxin.utils.constant.NavConstants.MainRoutes.ContactRoutes
@@ -90,6 +92,7 @@ fun MainContainer(
     val contactViewModel: ContactViewModel = hiltViewModel()
     val mainNavController = rememberNavController()
     val meViewModel: MeViewModel = hiltViewModel()
+    val registerViewModel: RegisterViewModel = hiltViewModel()
     val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val showBottomBar = currentRoute in items.map { it.route }
@@ -187,6 +190,18 @@ fun MainContainer(
                     )
                 }
             }
+            composable(ContactRoutes.APPLY_FRIEND_SCREEN+"/{encodeGson}"){
+                val contactEntity = Uri.decode(it.arguments?.getString("encodeGson"))?.let{
+                    GsonBuilder().create().fromJson(it, ContactEntity::class.java)
+                }
+                contactEntity?.let {
+                    ApplyFriendScreen(
+                        mainNavController,
+                        contactViewModel,
+                        contactEntity
+                    )
+                }
+            }
             composable(MainRoutes.DISCOVER_SCREEN) { DiscoverScreen(mainNavController) }
             composable(MainRoutes.ME_SCREEN) { MeScreen(mainNavController, appViewModel) }
             composable(MainRoutes.MeRoutes.SETTING_SCREEN) {
@@ -200,7 +215,8 @@ fun MainContainer(
                 PersonalDataScreen(
                     mainNavController,
                     appViewModel,
-                    personalDataViewModel
+                    registerViewModel,
+                    meViewModel
                 )
             }
             composable(MainRoutes.MeRoutes.UPDATE_NICKNAME) {

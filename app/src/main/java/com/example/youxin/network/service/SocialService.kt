@@ -10,6 +10,7 @@ import com.example.youxin.network.model.response.GetApplyListResp
 import com.example.youxin.network.model.response.GetFriendListResp
 import com.example.youxin.network.model.response.UserinfoResp
 import com.example.youxin.utils.constant.NetworkConstants
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -23,9 +24,9 @@ interface SocialService {
 
     @GET(NetworkConstants.User.FIND_USER)
     suspend fun findUser(
-        @Query("phone") phone: String? = "\"\"",
-        @Query("name") name: String? = "\"\"",
-        @Query("ids") ids: String? = "\"\""
+        @Query("phone") phone: String,
+        @Query("name") name: String,
+        @Query("ids") ids: String
     ): ApiResponse<FindUserResp>
 
     @POST(NetworkConstants.Social.HANDLE_APPLY)

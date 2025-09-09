@@ -8,6 +8,7 @@ import com.example.youxin.data.db.entity.CurrentUserEntity
 import com.example.youxin.data.repository.ContactRepository
 import com.example.youxin.data.repository.UserRepository
 import com.example.youxin.di.DataStoreManager
+import com.example.youxin.network.ChatWebSocket
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,8 @@ import javax.inject.Inject
 class AppViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val contactRepository: ContactRepository,
-    val dataStoreManager: DataStoreManager
+    val dataStoreManager: DataStoreManager,
+    val chatWebSocket: ChatWebSocket
 ) : ViewModel() {
     private val _currentUser = MutableStateFlow<CurrentUserEntity?>(null)
     val currentUser: StateFlow<CurrentUserEntity?> = _currentUser.asStateFlow()

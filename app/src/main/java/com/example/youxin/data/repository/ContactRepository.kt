@@ -2,6 +2,7 @@ package com.example.youxin.data.repository
 
 import android.util.Log
 import androidx.room.withTransaction
+import com.example.youxin.data.Result
 import com.example.youxin.data.db.AppDatabase
 import com.example.youxin.data.db.dao.ApplyDao
 import com.example.youxin.data.db.dao.ContactDao
@@ -10,6 +11,7 @@ import com.example.youxin.data.db.entity.ContactEntity
 import com.example.youxin.data.db.entity.FriendStatusEntity
 import com.example.youxin.di.DataStoreManager
 import com.example.youxin.network.api.SocialApi
+import com.example.youxin.network.model.response.ApplyFriendResp
 import com.example.youxin.network.model.response.Friend
 import com.example.youxin.network.model.response.GetFriendListResp
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +21,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
+import retrofit2.Response
 import javax.inject.Inject
 import kotlin.collections.map
 
@@ -50,10 +54,16 @@ class ContactRepository @Inject constructor(
     }
 
     // 申请添加朋友
-    suspend fun addApplyFriend(targetId: String, greetMsg: String): Boolean {
-        val result = socialApi.applyFriend(getUserId(), targetId, greetMsg)
-        return result != null
+    suspend fun addApplyFriend(targetId: String, greetMsg: String): Result<ApplyFriendResp> {
+        return try {
+            val apiResponse = socialApi.applyFriend(getUserId(), targetId, greetMsg)
+            Log.d("myTag", apiResponse.msg)
+            Result.Success(apiResponse)
+        } catch (e: HttpException) {
+            Result.Error(e)
+        }
     }
+
 
     // 通过朋友验证
     suspend fun handleApply(
@@ -140,8 +150,8 @@ class ContactRepository @Inject constructor(
         contactDao.deleteContactById(targetId)
     }
 
-    suspend fun findUser(phone: String?, name: String?, ids: String?): List<ContactEntity> {
-        val response = socialApi.findUser(phone ?: "null", name ?: "null", ids ?: "null")
+    suspend fun findUser(phone: String, name: String, ids: String): List<ContactEntity> {
+        val response = socialApi.findUser(phone, name, ids)
         if (response == null) {
             throw (Exception("查找用户失败"))
             Log.e("myTag", "查找用户失败")
@@ -202,10 +212,17 @@ class ContactRepository @Inject constructor(
                 )
             )
         }
-
         true
     }
 
+    suspend fun isFriend(id: String): Boolean {
+        val friend = contactDao.getContactById(id)
+        if (friend != null) {
+            return true
+        }
+        val friends = socialApi.getFriendList(getUserId())
+        return friends?.friendList?.any { it.userId == id } == true
+    }
 
     suspend fun syncContacts(): Boolean = withContext(Dispatchers.IO) {
         try {

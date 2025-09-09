@@ -1,14 +1,21 @@
 package com.example.youxin.ui.viewmodel
 
+import android.net.http.HttpException
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresExtension
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.youxin.data.Result
 import com.example.youxin.data.db.entity.ApplyEntity
 import com.example.youxin.data.db.entity.ContactEntity
 import com.example.youxin.data.db.entity.FriendStatusEntity
 import com.example.youxin.data.repository.ContactRepository
 import com.example.youxin.di.DataStoreManager
+import com.example.youxin.network.model.ApiResponse
+import com.example.youxin.network.model.response.ApplyFriendResp
 import com.example.youxin.utils.ContactGroupUtil
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +41,11 @@ class ContactViewModel @Inject constructor(
     val inputRemark = _inputRemark
     private val _currentSelectedContactId = MutableStateFlow<String?>(null)
     val currentSelectedContactId = _currentSelectedContactId.asStateFlow()
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    private val _promptMessage = MutableStateFlow<String?>(null)
+    val promptMessage = _promptMessage.asStateFlow()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val contactStatusFlow: StateFlow<FriendStatusEntity> = currentSelectedContactId
         .flatMapLatest { id -> // 每次id变化都会执行
@@ -47,6 +59,7 @@ class ContactViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = FriendStatusEntity(false, false, false, null)
         )
+
     fun updateSelectedContact(id: String?) {
         _currentSelectedContactId.value = id
     }
@@ -54,9 +67,19 @@ class ContactViewModel @Inject constructor(
     fun updateRemark(remark: String) {
         _inputRemark.value = remark
     }
+
+    fun clearErrorMessage() {
+        _promptMessage.value = null
+    }
+
     suspend fun deleteFriend(targetId: String) {
         contactRepository.deleteFriend(getUserId()!!, targetId)
     }
+
+    suspend fun findUser(phone: String, name: String, ids: String): List<ContactEntity> {
+        return contactRepository.findUser(phone, name, ids)
+    }
+
     suspend fun syncWithServer() {
         Log.d("myTag", "同步数据")
         contactRepository.syncWithServer()
@@ -64,6 +87,43 @@ class ContactViewModel @Inject constructor(
 
     suspend fun getUserId(): String? {
         return dataStoreManager.getUserId()
+    }
+
+    suspend fun isFriend(id: String): Boolean {
+        return try {
+            _isLoading.value = true
+            contactRepository.isFriend(id)
+        } catch (e: Exception) {
+            false
+        } finally {
+            _isLoading.value = false
+        }
+    }
+
+    suspend fun applyFriend(targetId: String, greetMsg: String) {
+        val result = contactRepository.addApplyFriend(targetId, greetMsg)
+        when (result) {
+            is Result.Success -> {
+                val response = result.apiResponse
+                if(response.code == 200){
+                    _promptMessage.value = "申请成功"
+                }else{
+                    _promptMessage.value = response.msg
+                }
+            }
+            is Result.Error -> {
+                val ex = result.exception
+                when(ex){
+                    is retrofit2.HttpException -> {
+                        val msg = Gson().fromJson(ex.response()?.errorBody()?.string(), ApiResponse::class.java).msg
+                        _promptMessage.value = msg
+                    }
+                    else ->{
+                        _promptMessage.value = "网络错误"
+                    }
+                }
+            }
+        }
     }
 
     init {

@@ -36,9 +36,7 @@ class UserRepository @Inject constructor(
                 token = registerResp.token,
                 avatar = avatar,
                 isLogin = false
-            ).also {
-                currentUserDao.saveCurrentUser(it)
-            }
+            )
         } else {
             return null
         }

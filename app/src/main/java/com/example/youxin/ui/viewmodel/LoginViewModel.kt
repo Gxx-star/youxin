@@ -1,12 +1,10 @@
 package com.example.youxin.ui.viewmodel
 
-import android.R.attr.password
-import android.util.Log
-import androidx.hilt.navigation.HiltViewModelFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.youxin.data.db.entity.CurrentUserEntity
 import com.example.youxin.data.repository.UserRepository
+import com.example.youxin.network.ChatWebSocket
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

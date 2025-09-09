@@ -85,7 +85,7 @@ class RegisterViewModel @Inject constructor(
     }
 
     // 保存图片到应用私有目录
-    suspend fun saveAvatarToPrivateDir(context: Context, uri: Uri): String? {
+    fun saveAvatarToPrivateDir(context: Context, uri: Uri): String? {
         return try {
             // 1. 创建应用私有目录文件（不会被系统回收）
             val fileName = "avatar_${System.currentTimeMillis()}.jpg"

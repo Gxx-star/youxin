@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +30,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -51,6 +53,7 @@ import com.example.youxin.utils.constant.NavConstants.LoginRoutes
 import com.example.youxin.utils.constant.NavConstants.RootRoutes
 import kotlinx.coroutines.delay
 import androidx.core.net.toUri
+import com.example.youxin.network.ChatWebSocket
 import kotlinx.coroutines.launch
 import kotlin.math.log
 
@@ -58,7 +61,8 @@ import kotlin.math.log
 @Composable
 fun LoginScreen(
     navController: NavController,
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    appViewModel: AppViewModel
 ) {
     val currentUser by loginViewModel.currentUser.collectAsStateWithLifecycle()
     // 每次进入登录导航时重置登录状态
@@ -77,6 +81,7 @@ fun LoginScreen(
             // 已登录：直接进入主页面
             currentUser?.isLogin == true -> {
                 Log.d("myTag", "导航进入主页面")
+                appViewModel.chatWebSocket.connect()
                 navController.navigate(RootRoutes.MAIN_GRAPH) {
                     popUpTo(RootRoutes.LOGIN_GRAPH){
                         inclusive = true // 导航进主页面之后清空栈
@@ -128,13 +133,15 @@ fun QuickLoginScreen(
         ) {
             // 头像区域
             AsyncImage(
-                model = Uri.parse(currentUser?.avatar?:"https://i.postimg.cc/W4qrZcBH/default-avatar.png"),
+                model = (currentUser?.avatar
+                    ?: "https://i.postimg.cc/W4qrZcBH/default-avatar.png").toUri(),
                 contentDescription = null,
                 modifier = Modifier
+                    .padding(5.dp)
                     .width(150.dp)
                     .height(150.dp)
-                    .padding(5.dp),
-                contentScale = ContentScale.FillBounds
+                    .clip(RoundedCornerShape(5.dp)),
+                contentScale = ContentScale.Crop
             )
             Text(
                 text = currentUser?.phone.toString(),

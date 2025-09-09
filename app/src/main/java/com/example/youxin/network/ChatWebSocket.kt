@@ -1,0 +1,115 @@
+package com.example.youxin.network
+
+import android.util.Log
+import com.example.youxin.data.db.entity.ChatLogEntity
+import com.example.youxin.data.db.entity.CurrentUserEntity
+import com.example.youxin.di.NetworkModule
+import com.example.youxin.utils.constant.NavConstants
+import com.example.youxin.utils.constant.NetworkConstants
+import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.jvm.java
+
+@Singleton
+class ChatWebSocket @Inject constructor(
+    private val okHttpClient: OkHttpClient,
+    private val currentUser: CurrentUserEntity?,
+    private val gson: Gson
+) {
+    private var webSocket: WebSocket? = null
+    private val _receivedMessages = MutableSharedFlow<ChatLogEntity>()
+    val receivedMessages: SharedFlow<ChatLogEntity> = _receivedMessages
+
+    // 新增：连接状态Flow（供UI观察）
+    private val _connectionState = MutableSharedFlow<Boolean>()
+    val connectionState: SharedFlow<Boolean> = _connectionState
+
+    // 重连次数计数器
+    private var reconnectCount = 0
+
+    fun connect() {
+        if (currentUser == null) return
+        if (isConnected()) return // 避免重复连接
+        val request = Request.Builder()
+            .url("ws://${NetworkConstants.BASE_URL}/ws?userId=${currentUser.id}")
+            .build()
+        webSocket = okHttpClient.newWebSocket(request, object : WebSocketListener() {
+            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response) {
+                super.onOpen(webSocket, response)
+                // 连接成功：重置重连计数，发送连接状态
+                reconnectCount = 0
+                CoroutineScope(Dispatchers.Main).launch {
+                    _connectionState.emit(true)
+                }
+            }
+            override fun onMessage(webSocket: WebSocket, text: String) {
+                // 接收消息逻辑不变
+                val message = gson.fromJson(text, ChatLogEntity::class.java)
+                CoroutineScope(Dispatchers.Main).launch {
+                    _receivedMessages.emit(message)
+                }
+            }
+
+            override fun onFailure(
+                webSocket: WebSocket,
+                t: Throwable,
+                response: okhttp3.Response?
+            ) {
+                super.onFailure(webSocket, t, response)
+                t.printStackTrace()
+                // 连接失败：发送状态，触发重连
+                CoroutineScope(Dispatchers.Main).launch {
+                    _connectionState.emit(false)
+                }
+                reconnect() // 调用重连
+            }
+
+            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+                super.onClosed(webSocket, code, reason)
+                CoroutineScope(Dispatchers.Main).launch {
+                    _connectionState.emit(false)
+                }
+            }
+        })
+        Log.d("myTag", "连接成功")
+    }
+
+    // 重连逻辑（指数退避：1s→2s→4s...最大10s）
+    private fun reconnect() {
+        if (currentUser == null) return
+        reconnectCount++
+        val delay = (1000L * (1 shl reconnectCount)).coerceAtMost(10000L) // 最大10秒
+        CoroutineScope(Dispatchers.Main).launch {
+            delay(delay)
+            connect() // 重新连接
+        }
+    }
+
+    // 检查是否已连接
+    private fun isConnected(): Boolean {
+        return webSocket != null
+    }
+
+    // 发送消息、断开连接方法不变...
+    fun sendMessage(message: ChatLogEntity) {
+        val json = gson.toJson(message)
+        webSocket?.send(json)
+        Log.d("myTag", "发送成功")
+    }
+
+    fun disconnect() {
+        webSocket?.close(1000, "正常关闭")
+        Log.d("myTag", "关闭成功")
+    }
+}
