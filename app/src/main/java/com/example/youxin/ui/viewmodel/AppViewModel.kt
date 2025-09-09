@@ -24,8 +24,7 @@ import javax.inject.Inject
 class AppViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val contactRepository: ContactRepository,
-    val dataStoreManager: DataStoreManager,
-    val chatWebSocket: ChatWebSocket
+    val dataStoreManager: DataStoreManager
 ) : ViewModel() {
     private val _currentUser = MutableStateFlow<CurrentUserEntity?>(null)
     val currentUser: StateFlow<CurrentUserEntity?> = _currentUser.asStateFlow()

@@ -69,6 +69,7 @@ import com.example.youxin.ui.screen.home.VerifiedFriendScreen
 import com.example.youxin.ui.theme.WechatGray1
 import com.example.youxin.ui.theme.WechatGreen
 import com.example.youxin.ui.viewmodel.AppViewModel
+import com.example.youxin.ui.viewmodel.ChatViewModel
 import com.example.youxin.ui.viewmodel.ContactViewModel
 import com.example.youxin.ui.viewmodel.MainViewModel
 import com.example.youxin.ui.viewmodel.MeViewModel
@@ -93,6 +94,7 @@ fun MainContainer(
     val mainNavController = rememberNavController()
     val meViewModel: MeViewModel = hiltViewModel()
     val registerViewModel: RegisterViewModel = hiltViewModel()
+    val chatViewModel:ChatViewModel = hiltViewModel()
     val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val showBottomBar = currentRoute in items.map { it.route }
@@ -118,7 +120,7 @@ fun MainContainer(
             modifier = Modifier
                 .padding(contentPadding)
         ) {
-            composable(MainRoutes.YOUXIN_SCREEN) { YouxinScreen(mainNavController) }
+            composable(MainRoutes.YOUXIN_SCREEN) { YouxinScreen(mainNavController,chatViewModel) }
             composable(MainRoutes.CONTACT_SCREEN) {
                 ContactScreen(
                     mainNavController,

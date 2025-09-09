@@ -44,7 +44,6 @@ fun MeScreen(
 ) {
     val scope = rememberCoroutineScope()
     val currentUser by appViewModel.currentUser.collectAsState()
-    Log.d("myTag", currentUser?.avatar.toString())
     val items = listOf(
         MeMenu.Service,
         MeMenu.Like,

@@ -1,17 +1,21 @@
 package com.example.youxin.network
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.youxin.data.db.entity.ChatLogEntity
 import com.example.youxin.data.db.entity.CurrentUserEntity
-import com.example.youxin.di.NetworkModule
+import com.example.youxin.data.repository.UserRepository
 import com.example.youxin.ui.viewmodel.AppViewModel
-import com.example.youxin.utils.constant.NavConstants
 import com.example.youxin.utils.constant.NetworkConstants
 import com.google.gson.Gson
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
@@ -25,10 +29,10 @@ import kotlin.jvm.java
 @Singleton
 class ChatWebSocket @Inject constructor(
     private val okHttpClient: OkHttpClient,
-    private val appViewModel: AppViewModel,
-    private val gson: Gson
+    private val currentUserRepository: UserRepository
 ) {
-    private val currentUser: CurrentUserEntity? = appViewModel.currentUser.value
+    val gson: Gson = Gson()
+    var currentUser = MutableStateFlow<CurrentUserEntity?>(null)
     private var webSocket: WebSocket? = null
     private val _receivedMessages = MutableSharedFlow<ChatLogEntity>()
     val receivedMessages: SharedFlow<ChatLogEntity> = _receivedMessages
@@ -40,11 +44,22 @@ class ChatWebSocket @Inject constructor(
     // 重连次数计数器
     private var reconnectCount = 0
 
+    init {
+        CoroutineScope(Dispatchers.Main).launch {
+            currentUserRepository.observeCurrentUser().collect{
+                if (it != null) {
+                    currentUser.value = it
+                    connect()
+                }
+            }
+        }
+    }
+
     fun connect() {
-        if (currentUser == null) return
+        if (currentUser.value == null) return
         if (isConnected()) return // 避免重复连接
         val request = Request.Builder()
-            .url("ws://${NetworkConstants.BASE_URL}/ws?userId=${currentUser.id}")
+            .url("ws://${NetworkConstants.BASE_URL}/ws?userId=${currentUser.value!!.id}")
             .build()
         webSocket = okHttpClient.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: okhttp3.Response) {
@@ -55,6 +70,7 @@ class ChatWebSocket @Inject constructor(
                     _connectionState.emit(true)
                 }
             }
+
             override fun onMessage(webSocket: WebSocket, text: String) {
                 // 接收消息逻辑不变
                 val message = gson.fromJson(text, ChatLogEntity::class.java)
@@ -89,7 +105,7 @@ class ChatWebSocket @Inject constructor(
 
     // 重连逻辑（指数退避：1s→2s→4s...最大10s）
     private fun reconnect() {
-        if (currentUser == null) return
+        if (currentUser.value == null) return
         reconnectCount++
         val delay = (1000L * (1 shl reconnectCount)).coerceAtMost(10000L) // 最大10秒
         CoroutineScope(Dispatchers.Main).launch {

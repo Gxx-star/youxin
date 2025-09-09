@@ -13,17 +13,17 @@ interface ChatDao {
     suspend fun saveChatLog(chatLog: ChatLogEntity): Long
 
     @Query("select * from chatlogs where sendId = :id or recvId = :id")
-    suspend fun getChatLogsFlowById(id: String): Flow<List<ChatLogEntity>>
+    fun getChatLogsFlowById(id: String): Flow<List<ChatLogEntity>>
 
     @Query("SELECT * FROM chatlogs WHERE id = :id")
-    suspend fun getChatLogFlowById(id: String): Flow<ChatLogEntity>
+    fun getChatLogFlowById(id: String): Flow<ChatLogEntity>
 
     @Insert
     suspend fun saveConversation(conversation: ConversationEntity): Long
 
     @Query("select * from conversations where userId1 = :id or userId2 = :id")
-    suspend fun getConversationsFlowById(id: String): Flow<List<ConversationEntity>>
+    fun getConversationsFlowById(id: String): Flow<List<ConversationEntity>>
 
     @Query("SELECT * FROM conversations WHERE id = :conversationId")
-    suspend fun getConversationFlowByIt(conversationId: String): Flow<ConversationEntity>
+    fun getConversationFlowById(conversationId: String): Flow<ConversationEntity>
 }

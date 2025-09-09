@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import com.example.youxin.data.db.AppDatabase
 import com.example.youxin.data.db.dao.ApplyDao
+import com.example.youxin.data.db.dao.ChatDao
 import com.example.youxin.data.db.dao.ContactDao
 import com.example.youxin.data.db.dao.CurrentUserDao
 import dagger.Module
@@ -47,5 +48,11 @@ object DatabaseModule {
     @Singleton
     fun provideApplyDao(appDatabase: AppDatabase): ApplyDao {
         return appDatabase.applyDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideChatDao(appDatabase: AppDatabase): ChatDao {
+        return appDatabase.chatDao()
     }
 }

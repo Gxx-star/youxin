@@ -81,7 +81,7 @@ fun LoginScreen(
             // 已登录：直接进入主页面
             currentUser?.isLogin == true -> {
                 Log.d("myTag", "导航进入主页面")
-                appViewModel.chatWebSocket.connect()
+                loginViewModel.chatWebSocket.connect()
                 navController.navigate(RootRoutes.MAIN_GRAPH) {
                     popUpTo(RootRoutes.LOGIN_GRAPH){
                         inclusive = true // 导航进主页面之后清空栈
