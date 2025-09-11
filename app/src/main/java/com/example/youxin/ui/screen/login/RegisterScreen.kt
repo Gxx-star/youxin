@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -58,6 +59,11 @@ import com.example.youxin.ui.viewmodel.RegisterViewModel
 import com.example.youxin.utils.OssUploader
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.youxin.MyApplication
+import com.example.youxin.ui.theme.WechatGray2
+import com.example.youxin.ui.theme.WechatGray4
+import kotlinx.coroutines.flow.map
 
 @Composable
 fun RegisterScreen(
@@ -65,6 +71,15 @@ fun RegisterScreen(
     appViewModel: AppViewModel,
     registerViewModel: RegisterViewModel = hiltViewModel(),
 ) {
+    val errorMsg by registerViewModel.state.map {
+        it.errorMessage
+    }.collectAsStateWithLifecycle(null)
+    LaunchedEffect(errorMsg) {
+        if (errorMsg != null) {
+            Toast.makeText(MyApplication.getContext(), errorMsg, Toast.LENGTH_SHORT).show()
+            registerViewModel.clearErrorMessage()
+        }
+    }
     val context = LocalContext.current
     // 密码可见性设置
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -83,14 +98,18 @@ fun RegisterScreen(
         // 更新头像
         uri?.let {
             scope.launch {
-                val uri = OssUploader.uploadFile(registerViewModel.saveAvatarToPrivateDir(context, it)?.toUri())
+                val uri = OssUploader.uploadFile(
+                    registerViewModel.saveAvatarToPrivateDir(context, it)?.toUri()
+                )
                 uri.let { uriString ->
                     registerViewModel.updateAvatar(uriString)
                 }
             }
         }
     }
-    Box {
+    Box (
+        modifier = Modifier.fillMaxSize()
+    ){
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -214,6 +233,11 @@ fun RegisterScreen(
                         }
                     }
                 )
+                Text(
+                    text = "密码必须由6-16位字符组成并且至少包含大小写字母和字符各一个",
+                    fontSize = 10.sp,
+                    color = WechatGray4
+                )
             }
             // 性别选择
             Column(
@@ -279,14 +303,15 @@ fun RegisterScreen(
                     .width(120.dp)
             )
         }
+        Spacer(modifier = Modifier.height(20.dp))
         // 底部文字
         Text(
             text = "注册即表示同意《友信用户协议》",
             color = Color.Gray,
             fontSize = 12.sp,
             modifier = Modifier
+                .padding(bottom = 30.dp,top = 10.dp)
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 30.dp)
         )
     }
 

@@ -6,6 +6,9 @@ import com.example.youxin.network.model.response.GetConversationsResp
 import com.example.youxin.network.service.ChatService
 import javax.inject.Inject
 
+/**
+ * 已废弃
+ */
 class ChatApi @Inject constructor(
     private val chatService: ChatService
 ){

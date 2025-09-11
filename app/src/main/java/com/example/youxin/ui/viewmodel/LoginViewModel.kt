@@ -1,15 +1,20 @@
 package com.example.youxin.ui.viewmodel
 
+import android.R.attr.value
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.youxin.data.Result
 import com.example.youxin.data.db.entity.CurrentUserEntity
 import com.example.youxin.data.repository.UserRepository
 import com.example.youxin.network.ChatWebSocket
+import com.example.youxin.network.model.ApiResponse
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import javax.inject.Inject
 
 /**
@@ -58,16 +63,33 @@ class LoginViewModel @Inject constructor(
             if (currentUser != null) {
                 currentState = currentState.copy(phone = currentUser.phone)
             }
-            if (userRepository.login(currentState.phone, currentState.password) != null) {
-                _state.value = currentState.copy(
-                    isLoading = false,
-                    isSuccess = true
-                )
-            } else {
-                _state.value = currentState.copy(
-                    isLoading = false,
-                    errorMessage = "登录失败"
-                )
+            val result = userRepository.login(currentState.phone, currentState.password)
+            when (result) {
+                is Result.Success -> {
+                    _state.value = currentState.copy(
+                        isLoading = false,
+                        isSuccess = true
+                    )
+                }
+
+                is Result.Error -> {
+                    _state.value = currentState.copy(
+                        isLoading = false
+                    )
+                    val ex = result.exception
+                    when (ex) {
+                        is HttpException -> {
+                            _state.value = currentState.copy(
+                                errorMessage = "账号或密码错误"
+                            )
+                        }
+                        else ->{
+                            _state.value = currentState.copy(
+                                errorMessage = "网络错误"
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -83,6 +105,9 @@ class LoginViewModel @Inject constructor(
     // 重置状态
     fun resetState() {
         _state.value = LoginState() // 重置页面状态（包括 isSuccess = false)
+    }
+    fun clearErrorMessage() {
+        _state.value = _state.value.copy(errorMessage = null)
     }
 }
 

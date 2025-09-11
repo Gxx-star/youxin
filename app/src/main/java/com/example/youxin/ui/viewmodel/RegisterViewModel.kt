@@ -77,13 +77,14 @@ class RegisterViewModel @Inject constructor(
                 Log.d("myTag", "注册成功")
                 _state.value = uiState.copy(isLoading = false, isSuccess = true)
             } else {
-
                 Log.d("myTag", "注册失败")
                 _state.value = uiState.copy(isLoading = false, errorMessage = "注册失败")
             }
         }
     }
-
+    fun clearErrorMessage() {
+        _state.value = _state.value.copy(errorMessage = null)
+    }
     // 保存图片到应用私有目录
     fun saveAvatarToPrivateDir(context: Context, uri: Uri): String? {
         return try {

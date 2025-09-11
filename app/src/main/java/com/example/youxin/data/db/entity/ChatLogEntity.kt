@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class ChatLogEntity(
     @PrimaryKey
     val id:String,
+    val userId:String, // 所属人的id
     val conversationId:String,
     val sendId:String,
     val recvId:String,

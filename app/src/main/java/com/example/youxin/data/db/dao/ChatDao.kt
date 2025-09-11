@@ -12,8 +12,8 @@ interface ChatDao {
     @Insert
     suspend fun saveChatLog(chatLog: ChatLogEntity): Long
 
-    @Query("select * from chatlogs where sendId = :id or recvId = :id")
-    fun getChatLogsFlowById(id: String): Flow<List<ChatLogEntity>>
+    @Query("select * from chatlogs where conversationId = :id ORDER BY sendTime ASC")
+    fun getChatLogsFlowByConversationId(id: String): Flow<List<ChatLogEntity>>
 
     @Query("SELECT * FROM chatlogs WHERE id = :id")
     fun getChatLogFlowById(id: String): Flow<ChatLogEntity>
@@ -21,9 +21,23 @@ interface ChatDao {
     @Insert
     suspend fun saveConversation(conversation: ConversationEntity): Long
 
-    @Query("select * from conversations where userId1 = :id or userId2 = :id")
+    @Query(
+        "update conversations set latestChatLog = :chatLog , latestChatTime = :currentTime " +
+                "where userId = :userId and id = :conversationId"
+    )
+    suspend fun updateConversation(
+        userId: String,
+        conversationId: String,
+        chatLog: ChatLogEntity,
+        currentTime: Long
+    )
+
+    @Query("select * from conversations where userId = :id ORDER BY latestChatTime DESC")
     fun getConversationsFlowById(id: String): Flow<List<ConversationEntity>>
 
     @Query("SELECT * FROM conversations WHERE id = :conversationId")
-    fun getConversationFlowById(conversationId: String): Flow<ConversationEntity>
+    fun getConversationFlowByConversationId(conversationId: String): Flow<ConversationEntity>
+
+    @Query("SELECT * FROM conversations where userId = :userId and targetId = :targetId")
+    fun getConversationByUsersId(userId: String, targetId: String): ConversationEntity?
 }

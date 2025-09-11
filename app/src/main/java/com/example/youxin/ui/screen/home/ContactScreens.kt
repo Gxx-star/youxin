@@ -77,6 +77,7 @@ import com.example.youxin.ui.theme.WechatLightBlue
 import com.example.youxin.ui.theme.WechatLightGray
 import com.example.youxin.ui.theme.White
 import com.example.youxin.ui.viewmodel.AppViewModel
+import com.example.youxin.ui.viewmodel.ChatViewModel
 import com.example.youxin.ui.viewmodel.ContactViewModel
 import com.example.youxin.utils.constant.NavConstants
 import com.example.youxin.utils.constant.NavConstants.MainRoutes.ContactRoutes
@@ -91,7 +92,8 @@ import kotlinx.coroutines.launch
 fun NewFriendScreen(
     navController: NavController,
     appViewModel: AppViewModel,
-    contactViewModel: ContactViewModel
+    contactViewModel: ContactViewModel,
+    chatViewModel: ChatViewModel
 ) {
     LaunchedEffect(Unit) {
         contactViewModel.syncWithServer()
@@ -577,8 +579,10 @@ fun AddFriendScreen(
 fun ContactDetailScreen(
     navController: NavController,
     contactViewModel: ContactViewModel,
-    contact: ContactEntity
+    contact: ContactEntity,
+    chatViewModel: ChatViewModel
 ) {
+    val scope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             MyTopBar(
@@ -705,7 +709,26 @@ fun ContactDetailScreen(
                             .height(40.dp)
                             .background(White)
                             .clickable(onClick = {
-                                // 进入聊天页面
+                                scope.launch {
+                                    chatViewModel.startConversation(
+                                        contactViewModel.getUserId().toString(),
+                                        contact.id,
+                                        contact.avatar.toString(),
+                                        contact.nickName
+                                    )
+                                    chatViewModel.updateCurrentConversationId(
+                                        chatViewModel.getConversationIdByUsersId(
+                                            contactViewModel.getUserId().toString(),
+                                            contact.id
+                                        ).toString()
+                                    )
+                                    // 进入聊天页面
+                                    val encodeGson =
+                                        Uri.encode(GsonBuilder().create().toJson(contact))
+                                    navController.navigate(
+                                        "${NavConstants.MainRoutes.YouxinRoutes.CHAT_SCREEN}/${encodeGson}"
+                                    )
+                                }
                             }),
                         contentAlignment = Alignment.Center
                     ) {

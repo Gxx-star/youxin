@@ -1,14 +1,14 @@
 package com.example.youxin.data.repository
 
 import android.util.Log
-import androidx.datastore.dataStore
 import com.example.youxin.data.db.dao.CurrentUserDao
 import com.example.youxin.data.db.entity.CurrentUserEntity
 import com.example.youxin.di.DataStoreManager
 import com.example.youxin.network.api.UserApi
-import com.example.youxin.utils.KeyStoreUtils
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+import com.example.youxin.data.Result
+import com.example.youxin.network.model.ApiResponse
 
 /**
  * 用户的数据统一管理中心
@@ -46,27 +46,31 @@ class UserRepository @Inject constructor(
     suspend fun login(
         phone: String,
         password: String
-    ): CurrentUserEntity? {
-        val loginResp = userApi.login(
-            phone = phone,
-            password = password
-        )
-        if (loginResp != null) {
-            val user = userApi.getUserInfo(loginResp.token)?.info
+    ): Result<CurrentUserEntity?> {
+        return try {
+            val loginResp = userApi.login(
+                phone = phone,
+                password = password
+            )
+            if (loginResp.data == null) {
+                throw (Exception("用户不存在"))
+            }
+            val loginResult = loginResp.data
+            val user = userApi.getUserInfo(loginResult.token)?.info
             dataStoreManager.saveUserId(user?.id.toString())
-            return CurrentUserEntity(
+            val userEntity = CurrentUserEntity(
                 id = user?.id.toString(),
                 phone = phone,
                 nickName = user?.nickname,
                 sex = user?.sex,
-                token = loginResp.token,
+                token = loginResult.token,
                 avatar = user?.avatar,
                 isLogin = true
-            ).also {
-                currentUserDao.saveCurrentUser(it)
-            }
-        } else {
-            return null
+            )
+            currentUserDao.saveCurrentUser(userEntity)
+            Result.Success(ApiResponse(200, "登录成功", userEntity))
+        } catch (e: Exception) {
+            Result.Error(e)
         }
     }
 

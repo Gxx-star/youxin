@@ -53,6 +53,7 @@ import com.example.youxin.data.db.entity.ApplyEntity
 import com.example.youxin.data.db.entity.ContactEntity
 import com.example.youxin.ui.screen.home.AddFriendScreen
 import com.example.youxin.ui.screen.home.ApplyFriendScreen
+import com.example.youxin.ui.screen.home.ChatScreen
 import com.example.youxin.ui.screen.home.ContactDetailScreen
 import com.example.youxin.ui.screen.home.YouxinScreen
 import com.example.youxin.ui.screen.home.ContactScreen
@@ -94,7 +95,7 @@ fun MainContainer(
     val mainNavController = rememberNavController()
     val meViewModel: MeViewModel = hiltViewModel()
     val registerViewModel: RegisterViewModel = hiltViewModel()
-    val chatViewModel:ChatViewModel = hiltViewModel()
+    val chatViewModel: ChatViewModel = hiltViewModel()
     val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val showBottomBar = currentRoute in items.map { it.route }
@@ -120,7 +121,27 @@ fun MainContainer(
             modifier = Modifier
                 .padding(contentPadding)
         ) {
-            composable(MainRoutes.YOUXIN_SCREEN) { YouxinScreen(mainNavController,chatViewModel) }
+            composable(MainRoutes.YOUXIN_SCREEN) {
+                YouxinScreen(
+                    mainNavController,
+                    chatViewModel,
+                    appViewModel
+                )
+            }
+            composable(MainRoutes.YouxinRoutes.CHAT_SCREEN + "/{encodeGson}") { backStackEntry ->
+                val contactEntity =
+                    Uri.decode(backStackEntry.arguments?.getString("encodeGson"))?.let {
+                        GsonBuilder().create().fromJson(it, ContactEntity::class.java)
+                    }
+                contactEntity?.let {
+                    ChatScreen(
+                        mainNavController,
+                        chatViewModel,
+                        contactEntity,
+                        appViewModel
+                    )
+                }
+            }
             composable(MainRoutes.CONTACT_SCREEN) {
                 ContactScreen(
                     mainNavController,
@@ -131,7 +152,8 @@ fun MainContainer(
                 NewFriendScreen(
                     mainNavController,
                     appViewModel,
-                    contactViewModel
+                    contactViewModel,
+                    chatViewModel
                 )
             }
             composable(MainRoutes.ContactRoutes.ADD_FRIEND_SCREEN) {
@@ -164,7 +186,8 @@ fun MainContainer(
                     ContactDetailScreen(
                         mainNavController,
                         contactViewModel,
-                        it
+                        it,
+                        chatViewModel
                     )
                 }
             }
@@ -180,8 +203,8 @@ fun MainContainer(
                     )
                 }
             }
-            composable(ContactRoutes.FRIEND_REMARK_SETTINGS+"/{encodeGson}"){
-                val contactId = Uri.decode(it.arguments?.getString("encodeGson"))?.let{
+            composable(ContactRoutes.FRIEND_REMARK_SETTINGS + "/{encodeGson}") {
+                val contactId = Uri.decode(it.arguments?.getString("encodeGson"))?.let {
                     GsonBuilder().create().fromJson(it, String::class.java)
                 }
                 contactId?.let {
@@ -192,8 +215,8 @@ fun MainContainer(
                     )
                 }
             }
-            composable(ContactRoutes.APPLY_FRIEND_SCREEN+"/{encodeGson}"){
-                val contactEntity = Uri.decode(it.arguments?.getString("encodeGson"))?.let{
+            composable(ContactRoutes.APPLY_FRIEND_SCREEN + "/{encodeGson}") {
+                val contactEntity = Uri.decode(it.arguments?.getString("encodeGson"))?.let {
                     GsonBuilder().create().fromJson(it, ContactEntity::class.java)
                 }
                 contactEntity?.let {

@@ -4,6 +4,7 @@ import android.R.attr.bottom
 import android.R.attr.singleLine
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,7 +54,10 @@ import com.example.youxin.utils.constant.NavConstants.LoginRoutes
 import com.example.youxin.utils.constant.NavConstants.RootRoutes
 import kotlinx.coroutines.delay
 import androidx.core.net.toUri
+import com.alibaba.sdk.android.oss.common.OSSLogToFileUtils.init
+import com.example.youxin.MyApplication
 import com.example.youxin.network.ChatWebSocket
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.math.log
 
@@ -64,10 +68,24 @@ fun LoginScreen(
     loginViewModel: LoginViewModel,
     appViewModel: AppViewModel
 ) {
+    val scope = rememberCoroutineScope()
     val currentUser by loginViewModel.currentUser.collectAsStateWithLifecycle()
+    val errorMsg by loginViewModel.state.map {
+        it.errorMessage
+    }.collectAsStateWithLifecycle(null)
     // 每次进入登录导航时重置登录状态
     SideEffect {
         loginViewModel.resetState()
+    }
+    LaunchedEffect(errorMsg) {
+        if (errorMsg != null) {
+            Toast.makeText(
+                MyApplication.getContext(),
+                errorMsg,
+                Toast.LENGTH_SHORT
+            ).show()
+            loginViewModel.resetState()
+        }
     }
     // 在刚开始启动时的缓冲，数据加载完毕后再进入导航
     val isLoading by loginViewModel.isLoading.collectAsStateWithLifecycle()
@@ -83,7 +101,7 @@ fun LoginScreen(
                 Log.d("myTag", "导航进入主页面")
                 loginViewModel.chatWebSocket.connect()
                 navController.navigate(RootRoutes.MAIN_GRAPH) {
-                    popUpTo(RootRoutes.LOGIN_GRAPH){
+                    popUpTo(RootRoutes.LOGIN_GRAPH) {
                         inclusive = true // 导航进主页面之后清空栈
                     }
                     launchSingleTop = true
@@ -110,6 +128,19 @@ fun QuickLoginScreen(
     navController: NavController,
     loginViewModel: LoginViewModel
 ) {
+    val errorMsg by loginViewModel.state.map {
+        it.errorMessage
+    }.collectAsStateWithLifecycle(null)
+    LaunchedEffect(errorMsg) {
+        if (errorMsg != null) {
+            Toast.makeText(
+                MyApplication.getContext(),
+                errorMsg,
+                Toast.LENGTH_SHORT
+            ).show()
+            loginViewModel.clearErrorMessage()
+        }
+    }
     val currentUser: CurrentUserEntity? by loginViewModel.currentUser.collectAsStateWithLifecycle()
     val uiState by loginViewModel.state.collectAsStateWithLifecycle()
     var passwordVisible by remember { mutableStateOf(false) }

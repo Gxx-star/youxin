@@ -4,7 +4,7 @@ data class ConversationInfo(
     val chatType: String,
     val conversationId: String,
     val isShow: String,
-    val msg: String,
+    val msg: MessageData,
     val read: String,
     val seq: String,
     val targetId: String,

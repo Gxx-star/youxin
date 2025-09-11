@@ -7,9 +7,12 @@ import androidx.room.PrimaryKey
 data class ConversationEntity(
     @PrimaryKey
     val id: String,
-    val userId1:String,
-    val userId2:String,
+    val userId:String,// 所属人的id
+    val targetId:String,
+    val targetAvatar:String,
+    val targetNickname:String,
     val isShow:Boolean,
-    val latestChatLog:ChatLogEntity, // 最后聊天内容
+    val latestChatLog:ChatLogEntity?, // 最后聊天内容
+    val latestChatTime:Long,
     val toRead:Int, // 未读消息数
 )
