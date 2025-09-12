@@ -1,5 +1,6 @@
 package com.example.youxin.network
 
+import android.R.id.message
 import android.util.Log
 import com.example.youxin.data.db.dao.ChatDao
 import com.example.youxin.data.db.entity.ChatLogEntity
@@ -29,7 +30,7 @@ class ChatWebSocket @Inject constructor(
     private val okHttpClient: OkHttpClient,
     private val currentUserRepository: UserRepository,
     private val dataStoreManager: DataStoreManager,
-    private val chatDao:ChatDao
+    private val chatDao: ChatDao
 ) {
 
     val gson: Gson = Gson()
@@ -57,7 +58,7 @@ class ChatWebSocket @Inject constructor(
         }
         CoroutineScope(Dispatchers.Main).launch {
             dataStoreManager.getUserIdFlow.collect {
-                    currentUserId.value = it
+                currentUserId.value = it
             }
         }
     }
@@ -65,7 +66,6 @@ class ChatWebSocket @Inject constructor(
     fun connect() {
         if (currentUser.value == null) return
         if (isConnected()) return // 避免重复连接
-        Log.d("myTag", currentUser.value!!.id.toString())
         val request = Request.Builder()
             .url("ws://114.215.194.88:9080/ws")
             .header("userId", currentUser.value!!.id)
@@ -83,9 +83,8 @@ class ChatWebSocket @Inject constructor(
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
-                Log.d("myTag", text.toString())
+                Log.d("myTag", "收到消息：$text")
                 val message = gson.fromJson(text, MessageFrame::class.java)
-                Log.d("myTag", message.toString())
                 CoroutineScope(Dispatchers.Main).launch {
                     _receivedMessages.emit(message)
                 }
@@ -96,12 +95,13 @@ class ChatWebSocket @Inject constructor(
                 t: Throwable,
                 response: okhttp3.Response?
             ) {
-                Log.d("myTag", "连接失败"+t.toString())
+                Log.d("myTag", "连接失败")
                 super.onFailure(webSocket, t, response)
                 t.printStackTrace()
                 CoroutineScope(Dispatchers.Main).launch {
                     _connectionState.emit(false)
                 }
+                this@ChatWebSocket.webSocket = null  // 置空
                 reconnect()
             }
 
@@ -128,9 +128,9 @@ class ChatWebSocket @Inject constructor(
     private fun isConnected(): Boolean {
         return webSocket != null
     }
-
     // 发送消息
     fun sendMessage(message: MessageFrame) {
+        Log.d("myTag", "发送的消息：${message.toString()}")
         val json = gson.toJson(message)
         webSocket?.send(json)
         Log.d("myTag", "发送成功")

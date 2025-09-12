@@ -73,10 +73,6 @@ fun LoginScreen(
     val errorMsg by loginViewModel.state.map {
         it.errorMessage
     }.collectAsStateWithLifecycle(null)
-    // 每次进入登录导航时重置登录状态
-    SideEffect {
-        loginViewModel.resetState()
-    }
     LaunchedEffect(errorMsg) {
         if (errorMsg != null) {
             Toast.makeText(
@@ -86,6 +82,10 @@ fun LoginScreen(
             ).show()
             loginViewModel.resetState()
         }
+    }
+    // 每次进入登录导航时重置登录状态
+    SideEffect {
+        loginViewModel.resetState()
     }
     // 在刚开始启动时的缓冲，数据加载完毕后再进入导航
     val isLoading by loginViewModel.isLoading.collectAsStateWithLifecycle()

@@ -289,12 +289,12 @@ fun BottomBar(navController: NavController) {
                 },
                 onClick = {
                     navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+                        popUpTo(0) {
+                            saveState = false
                             inclusive = true
                         }
                         launchSingleTop = true
-                        restoreState = true
+                        restoreState = false
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(

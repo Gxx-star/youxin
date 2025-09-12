@@ -39,5 +39,5 @@ interface ChatDao {
     fun getConversationFlowByConversationId(conversationId: String): Flow<ConversationEntity>
 
     @Query("SELECT * FROM conversations where userId = :userId and targetId = :targetId")
-    fun getConversationByUsersId(userId: String, targetId: String): ConversationEntity?
+    suspend fun getConversationByUsersId(userId: String, targetId: String): ConversationEntity?
 }

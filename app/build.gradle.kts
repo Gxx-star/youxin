@@ -64,6 +64,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("com.aliyun.dpa:oss-android-sdk:2.9.21")
+    implementation ("androidx.compose.foundation:foundation:1.4.3") // 版本号可能需要更新
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)

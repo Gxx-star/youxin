@@ -2,6 +2,7 @@ package com.example.youxin.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.util.CoilUtils.result
 import com.example.youxin.data.db.entity.ChatLogEntity
 import com.example.youxin.data.db.entity.ConversationEntity
 import com.example.youxin.data.repository.ChatRepository
@@ -27,6 +28,7 @@ class ChatViewModel @Inject constructor(
     val conversations: StateFlow<List<ConversationEntity>> = _conversations.asStateFlow()
     private val _currentConversationId = MutableStateFlow<String?>(null)
     val currentConversationId = _currentConversationId.asStateFlow()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val chatLogsFlow: StateFlow<List<ChatLogEntity>> = _currentConversationId.flatMapLatest {
         if (it != null) {
@@ -48,7 +50,7 @@ class ChatViewModel @Inject constructor(
         _currentConversationId.value = conversationId
     }
 
-    fun getConversationIdByUsersId(userId: String, targetId: String): String? {
+    suspend fun getConversationIdByUsersId(userId: String, targetId: String): String? {
         return chatRepository.getConversationIdByUsersId(userId, targetId)
     }
 

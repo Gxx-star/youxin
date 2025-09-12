@@ -35,7 +35,7 @@ class ChatRepository @Inject constructor(
                     Log.e("myTag", "收到的消息为空，忽略该消息")
                     return@collect
                 }
-                val conversationId = UUID.randomUUID().toString()
+                val conversationId = chatDao.getConversationByUsersId(message.toId, message.fromId)?.id?: UUID.randomUUID().toString()
                 val chatLogId = UUID.randomUUID().toString()
                 // 如果没有该会话，则为接收方创建会话
                 if (chatDao.getConversationByUsersId(message.toId, message.fromId) == null) {
@@ -157,7 +157,7 @@ class ChatRepository @Inject constructor(
     }
 
     // 查询会话
-    fun getConversationIdByUsersId(userId: String, targetId: String): String? {
+    suspend fun getConversationIdByUsersId(userId: String, targetId: String): String? {
         val conversation = chatDao.getConversationByUsersId(userId, targetId)
         return conversation?.id
     }
