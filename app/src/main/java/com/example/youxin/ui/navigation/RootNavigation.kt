@@ -1,24 +1,33 @@
 package com.example.youxin.ui.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.example.youxin.network.ChatWebSocket
 import com.example.youxin.ui.screen.login.FullLoginScreen
 import com.example.youxin.ui.screen.login.LoginScreen
 import com.example.youxin.ui.screen.login.QuickLoginScreen
 import com.example.youxin.ui.screen.login.RegisterScreen
 import com.example.youxin.ui.viewmodel.AppViewModel
 import com.example.youxin.ui.viewmodel.LoginViewModel
+import com.example.youxin.ui.viewmodel.MainViewModel
 import com.example.youxin.utils.constant.NavConstants
 import com.example.youxin.utils.constant.NavConstants.RootRoutes
+import javax.inject.Inject
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun RootNavgation() {
+fun RootNavigation() {
+    // 管理自动注入通过构造函数给每一个页面
     val navController = rememberNavController()
     val appViewModel: AppViewModel = hiltViewModel()
+    val loginViewModel: LoginViewModel = hiltViewModel()
+    val mainViewModel: MainViewModel = hiltViewModel()
     NavHost(
         navController = navController,
         startDestination = RootRoutes.LOGIN_GRAPH
@@ -28,36 +37,27 @@ fun RootNavgation() {
             startDestination = NavConstants.LoginRoutes.LOGIN_SCREEN
         ) {
             composable(NavConstants.LoginRoutes.LOGIN_SCREEN) {
-                LoginScreen(navController, appViewModel)
+                LoginScreen(navController, loginViewModel,appViewModel)
             }
             composable(NavConstants.LoginRoutes.QUICK_LOGIN_SCREEN) {
-                QuickLoginScreen()
+                QuickLoginScreen(navController, loginViewModel)
             }
-            composable(NavConstants.LoginRoutes.FULL_LOGIN_SCREEN){
-                FullLoginScreen()
+            composable(NavConstants.LoginRoutes.FULL_LOGIN_SCREEN) {
+                FullLoginScreen(navController, loginViewModel)
             }
             composable(NavConstants.LoginRoutes.REGISTER_SCREEN) {
                 RegisterScreen(navController, appViewModel)
             }
-            composable(NavConstants.LoginRoutes.FORGET_PASSWORD_SCREEN) {
-
-            }
         }
         navigation(
             route = RootRoutes.MAIN_GRAPH,
-            startDestination = NavConstants.MainRoutes.YOUXIN_SCREEN
+            startDestination = NavConstants.MainRoutes.MAIN_CONTAINER
         ) {
-            composable(NavConstants.MainRoutes.YOUXIN_SCREEN) {
-
-            }
-            composable(NavConstants.MainRoutes.CONTACT_SCREEN) {
-
-            }
-            composable(NavConstants.MainRoutes.DISCOVER_SCREEN) {
-
-            }
-            composable(NavConstants.MainRoutes.ME_SCREEN) {
-
+            composable(NavConstants.MainRoutes.MAIN_CONTAINER) {
+                MainContainer(
+                    navController,
+                    mainViewModel
+                )
             }
         }
     }

@@ -1,7 +1,10 @@
 package com.example.youxin.network.api
 
+import android.util.Log
+import com.example.youxin.network.model.ApiResponse
 import com.example.youxin.network.model.request.LoginReq
 import com.example.youxin.network.model.request.RegisterReq
+import com.example.youxin.network.model.request.UpdateUserInfoReq
 import com.example.youxin.network.model.response.LoginResp
 import com.example.youxin.network.model.response.RegisterResp
 import com.example.youxin.network.model.response.UserinfoResp
@@ -21,27 +24,34 @@ class UserApi @Inject constructor(
     ): RegisterResp? {
         val request = RegisterReq(phone, password, nickname, sex, avatar)
         val response = userService.register(request)
-        if (response.message != "success") {
-            throw Exception("注册失败: ${response.message}")
+        Log.d("myTag", response.toString())
+        if (response.msg != "success") {
+            throw Exception("注册失败: ${response.msg}")
         }
         return response.data
     }
 
     // 登录
-    suspend fun login(phone: String, password: String): LoginResp? {
+    suspend fun login(phone: String, password: String): ApiResponse<LoginResp> {
         val request = LoginReq(phone, password)
         val response = userService.login(request)
-        if (response.message != "success") {
-            throw Exception("登录失败: ${response.message}")
-        }
+        return response
+    }
+
+    // 获取用户信息
+    suspend fun getUserInfo(token: String): UserinfoResp? {
+        val response = userService.getUserInfo(token)
         return response.data
     }
-    // 获取用户信息
-    suspend fun getUserInfo(token:String): UserinfoResp? {
-        val response = userService.getUserInfo(token)
-        if (response.message != "success") {
-            throw Exception("获取用户信息失败: ${response.message}")
+
+    // 更新个人信息
+    suspend fun updateUserInfo(token: String, nickName: String, sex: Byte, avatar: String):Boolean {
+        val response =
+            userService.updateUserInfo(token, UpdateUserInfoReq(avatar, nickName, sex.toInt()))
+        if (response.msg != "success") {
+            throw Exception("更新用户信息失败: ${response.msg}")
+            return false
         }
-        return response.data
+        return true
     }
 }

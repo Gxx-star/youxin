@@ -1,7 +1,7 @@
 package com.example.youxin.ui.theme
 
 import androidx.compose.ui.graphics.Color
-
+val White = Color(0xFFFFFFFF)
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)
@@ -19,4 +19,6 @@ val WechatGray2 = Color(0xFFD9D9D9)     // 中浅灰：按钮禁用状态、次�
 val WechatGray3 = Color(0xFFB2B2B2)     // 中灰色：次要文字（如时间、状态提示）
 val WechatGray4 = Color(0xFF8C8C8C)     // 深灰色：辅助文字（如备注、说明）
 val WechatDarkGray = Color(0xFF333333)  // 近黑色：主要文字（如聊天内容、标题）
+// 浅蓝色字体
+val WechatLightBlue = Color(0xFF52C4F7)
 

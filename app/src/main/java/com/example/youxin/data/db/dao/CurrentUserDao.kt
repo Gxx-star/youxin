@@ -22,6 +22,12 @@ interface CurrentUserDao {
     @Query("DELETE FROM current_user")
     suspend fun deleteCurrentUser()
 
+    @Query("UPDATE current_user SET avatar = :newAvatar,nickName = :newNickName, sex = :newSex")
+    suspend fun updateCurrentUser(newAvatar: String, newNickName: String, newSex: Byte)
+
     @Query("UPDATE current_user SET token = :newToken")
     suspend fun updateToken(newToken: String)
+
+    @Query("UPDATE current_user SET isLogin = :isLogin")
+    suspend fun updateIsLogin(isLogin: Boolean)
 }

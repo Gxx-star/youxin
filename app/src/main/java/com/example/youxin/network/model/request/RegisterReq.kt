@@ -7,7 +7,7 @@ data class RegisterReq(
     val phone: String,
     @SerializedName("password")
     val password: String,
-    @SerializedName("nickName")
+    @SerializedName("nickname")
     val nickName: String,
     @SerializedName("sex")
     val sex: Byte,
